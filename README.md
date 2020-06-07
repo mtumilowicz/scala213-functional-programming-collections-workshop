@@ -28,4 +28,6 @@
         * p 278
     * Write three functions to fold a tree: foldInOrder , foldPreOrder, and foldPostOrder
         * p 286
+1. list
+    * show how sum function is implemented
     
