@@ -176,16 +176,13 @@ sealed trait ListFp[+A] {
   }
 
   def hasSubsequence[B >: A](sequence: ListFp[B]): Boolean = {
-
     @scala.annotation.tailrec
     def listLoop(list: ListFp[A], sequence: ListFp[B] = sequence): Boolean = {
-      list match {
-        case NilFp => sequence == NilFp
-        case ConsFp(head, tail) => sequence match {
-          case NilFp => true
-          case ConsFp(seqHead, seqTail) => if (head == seqHead)
-            listLoop(tail, seqTail)
-          else listLoop(tail, sequence)
+      sequence match {
+        case NilFp => true
+        case ConsFp(headS, tailS) => list match {
+          case NilFp => false
+          case ConsFp(head, tail) => listLoop(tail, if (head == headS) tailS else sequence)
         }
       }
     }
