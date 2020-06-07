@@ -243,10 +243,3 @@ object ListFpUtils {
   }
 
 }
-
-object Main extends App {
-
-  import ListFpUtils._
-
-  println(ListFp(1, 2, 3).sum)
-}
