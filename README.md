@@ -1,9 +1,4 @@
 1. list, stream, tree
-1. fun getAt(index: Int)
-    * fun getAtViaFoldLeft(index: Int): Result<A> =
-1. splitAt
-    * using fold
-        * p. 213
 1. tree
     * contains
     * min max size; with / without memoization
