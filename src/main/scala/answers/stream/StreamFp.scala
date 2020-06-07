@@ -28,10 +28,9 @@ sealed trait StreamFp[+A] {
     loop(this)
   }
 
-  // EXERCISE 5.2
   def take(n: Int): StreamFp[A] = {
     def listToStream: List[A] => StreamFp[A] =
-      _.foldLeft(StreamFp.empty[A])((elem, stream) => StreamFp.cons(stream, elem))
+      _.foldLeft(StreamFp.empty[A])((stream, elem) => StreamFp.cons(elem, stream))
 
     @scala.annotation.tailrec
     def loop(stream: StreamFp[A], n: Int, list: List[A] = List()): List[A] = {
@@ -113,7 +112,6 @@ sealed trait StreamFp[+A] {
     }
   }
 
-  // EXERCISE 5.14
   def startsWith[B >: A](s: StreamFp[B]): Boolean = {
     @scala.annotation.tailrec
     def loop(current: StreamFp[A], prefix: StreamFp[B]): Boolean = {
@@ -131,7 +129,6 @@ sealed trait StreamFp[+A] {
     loop(this, s)
   }
 
-  //  EXERCISE 5.15
   def tails: StreamFp[StreamFp[A]] = {
     StreamFp.unfold(this) {
       case EmptyStreamFp => Option.empty
@@ -139,7 +136,6 @@ sealed trait StreamFp[+A] {
     } append StreamFp.cons(StreamFp.empty, StreamFp.empty)
   }
 
-  // EXERCISE 5.16
   def scanRight[B](z: B)(f: (A, => B) => B): StreamFp[B] = {
     foldRight((z, StreamFp.cons(z, StreamFp.empty)))((a, p0) => {
       val b2 = f(a, p0._1)
@@ -164,17 +160,14 @@ object StreamFp {
   def apply[A](as: A*): StreamFp[A] =
     if (as.isEmpty) empty else cons(as.head, apply(as.tail: _*))
 
-  // EXERCISE 5.8
   def constant[A](a: A): StreamFp[A] = {
     StreamFp.cons(a, constant(a))
   }
 
-  // EXERCISE 5.9
   def from(n: Int): StreamFp[Int] = {
     StreamFp.cons(n, from(n + 1))
   }
 
-  // EXERCISE 5.10
   def fibs(): StreamFp[Int] = {
     def fib(prev: Int, next: Int, stream: => StreamFp[Int] = StreamFp.empty): StreamFp[Int] = {
       StreamFp.cons(prev, fib(next, prev + next, stream))
