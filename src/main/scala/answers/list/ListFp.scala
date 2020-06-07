@@ -192,6 +192,13 @@ sealed trait ListFp[+A] {
 
     listLoop(this)
   }
+
+  def groupBy[B](f: A => B): Map[B, List[A]] = {
+    def aggregate(map: Map[B, List[A]], a: A): Map[B, List[A]] =
+      map.updatedWith(f(a))(_.map(a :: _))
+
+    foldLeft(Map[B, List[A]]())(aggregate)
+  }
 }
 
 case object NilFp extends ListFp[Nothing]
