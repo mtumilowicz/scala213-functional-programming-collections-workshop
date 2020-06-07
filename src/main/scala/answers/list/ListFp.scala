@@ -151,15 +151,9 @@ sealed trait ListFp[+A] {
   }
 
   def flatMap[B](f: A => ListFp[B]): ListFp[B] = {
-    @scala.annotation.tailrec
-    def loop(list: ListFp[A], transformed: ListFp[B] = ListFp()): ListFp[B] = {
-      list match {
-        case NilFp => transformed
-        case ConsFp(head, tail) => loop(tail, f(head).concat(transformed))
-      }
-    }
-
-    loop(this).reverse()
+    import ListFpUtils._
+    val value: ListFp[ListFp[B]] = this.map(f)
+    value.flatten()
   }
 
   def filterByFlatMap(f: A => Boolean): ListFp[A] = {
