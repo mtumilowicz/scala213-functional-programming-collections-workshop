@@ -44,6 +44,9 @@ sealed trait StreamFp[+A] {
     listToStream(loop(this, n))
   }
 
+  def find(p: A => Boolean): Option[A] =
+    filter(p).headOption
+
   def drop(n: Int): StreamFp[A] = {
     @scala.annotation.tailrec
     def loop(stream: StreamFp[A], n: Int): StreamFp[A] = {
