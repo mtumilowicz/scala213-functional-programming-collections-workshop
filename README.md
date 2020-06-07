@@ -1,5 +1,4 @@
 1. list, stream, tree
-1. flatten - przejść przez concat
 1. list of eithers to list a, jesli failure to pomija
     { ra -> ra.map { List(it) }.getOrElse(List()) }
 1. Zipping and unzipping lists
