@@ -196,6 +196,20 @@ sealed trait ListFp[+A] {
 
     foldLeft(Map[B, List[A]]())(aggregate)
   }
+
+  def splitAt(index: Int): (ListFp[A], ListFp[A]) = {
+    @scala.annotation.tailrec
+    def loop(current: ListFp[A], splitted: ListFp[A] = ListFp(), counter: Int = index): (ListFp[A], ListFp[A]) = {
+      if (counter == 0) return (splitted, current)
+      current match {
+        case ConsFp(head, next) => loop(next, ConsFp(head, splitted), counter - 1)
+        case NilFp => (splitted, ListFp())
+      }
+    }
+
+    val (a, b) = loop(this)
+    (a.reverse(), b)
+  }
 }
 
 case object NilFp extends ListFp[Nothing]

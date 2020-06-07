@@ -258,4 +258,8 @@ class ListFpTest extends org.scalatest.FunSuite with org.scalatest.matchers.shou
     ListFp.traverse(List("a", "1", "2", "3"))(parse) shouldBe None
     ListFp.traverse(List())(parse) shouldBe Some(List())
   }
+
+  test("splitAt") {
+    println(ListFp(1,2,3,4,5).splitAt(2))
+  }
 }
