@@ -96,6 +96,12 @@ sealed trait ListFp[+A] {
     }
   }
 
+  def exists(p: A => Boolean): Boolean =
+    this match {
+      case NilFp => false
+      case ConsFp(head, tail) => p(head) || tail.exists(p) // Because the || operator evaluates its second argument lazily
+    }
+
   def foldLeftByFoldRightRev[B](z: B)(f: (B, A) => B): B = {
     reverse().foldRight(z)((a, b) => f(b, a))
   }
