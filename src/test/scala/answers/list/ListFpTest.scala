@@ -165,6 +165,18 @@ class ListFpTest extends org.scalatest.FunSuite with org.scalatest.matchers.shou
     listOfLists.flatten() shouldBe ListFp(1, 2, 3, 4, 5, 6)
   }
 
+  test("sum") {
+    val l1 = ListFp[Int]()
+    val l2 = ListFp[Double](1)
+    val l3 = ListFp[BigDecimal](2, 3)
+    val l4 = ListFp[Float](4, 5, 6)
+
+    l1.sum() shouldBe 0
+    l2.sum() shouldBe 1
+    l3.sum() shouldBe 5
+    l4.sum() shouldBe 15
+  }
+
   test("map") {
     val empty = ListFp[String]()
     val list = ListFp(1, 2, 3, 4)
