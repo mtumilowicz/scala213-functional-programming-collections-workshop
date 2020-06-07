@@ -74,18 +74,6 @@ sealed trait ListFp[+A] {
   }
 
   def reverse(): ListFp[A] = {
-    @scala.annotation.tailrec
-    def go(list: ListFp[A], reversed: ListFp[A] = NilFp): ListFp[A] = {
-      list match {
-        case NilFp => reversed
-        case ConsFp(head, tail) => go(tail, ConsFp(head, reversed))
-      }
-    }
-
-    go(this)
-  }
-
-  def reverseFoldLeft(): ListFp[A] = {
     foldLeft(ListFp[A]())((reversed, head) => ConsFp(head, reversed))
   }
 
@@ -102,10 +90,7 @@ sealed trait ListFp[+A] {
       case ConsFp(head, tail) => p(head) || tail.exists(p) // Because the || operator evaluates its second argument lazily
     }
 
-  def foldLeftByFoldRightRev[B](z: B)(f: (B, A) => B): B = {
-    reverse().foldRight(z)((a, b) => f(b, a))
-  }
-
+  // note that foldRight = foldLeft on reversed
   def foldLeftByFoldRight[B](z: B)(f: (B, A) => B): B = {
     foldRight((b: B) => b)((a, delayFunction) => b => delayFunction(f(b, a)))(z)
 
@@ -117,47 +102,26 @@ sealed trait ListFp[+A] {
     // d4 = d3(Nil) = d2(f(Nil, 3)) = d1(f(f(Nil, 3)), 2) = delayFunction(f(f(f(Nil, 3)), 2), 1))
   }
 
-  def appendFoldRight[B >: A](elem: B): ListFp[B] = {
+  def append[B >: A](elem: B): ListFp[B] = {
     foldRight(ListFp(elem))(ConsFp(_, _))
   }
 
   def map[B](f: A => B): ListFp[B] = {
-    @scala.annotation.tailrec
-    def loop(list: ListFp[A], transformed: ListFp[B] = ListFp()): ListFp[B] = {
-      list match {
-        case NilFp => transformed
-        case ConsFp(head, tail) => loop(tail, ConsFp(f(head), transformed))
-      }
-    }
-
-    loop(this).reverse()
+    foldRight(ListFp[B]())((elem, newList) => ConsFp(f(elem), newList))
   }
 
   def filter(f: A => Boolean): ListFp[A] = {
-    @scala.annotation.tailrec
-    def loop(list: ListFp[A], filtered: ListFp[A] = ListFp()): ListFp[A] = {
-      list match {
-        case NilFp => filtered
-        case ConsFp(head, tail) if f(head) => loop(tail, ConsFp(head, filtered))
-        case ConsFp(head, tail) if !f(head) => loop(tail, filtered)
-      }
-    }
-
-    loop(this).reverse()
+    flatMap(a => if (f(a)) ListFp(a) else ListFp())
   }
 
   def concat[B >: A](second: ListFp[B]): ListFp[B] = {
-    this.foldRight(second)((prev, concatenated) => ConsFp(prev, concatenated))
+    foldRight(second)((prev, concatenated) => ConsFp(prev, concatenated))
   }
 
   def flatMap[B](f: A => ListFp[B]): ListFp[B] = {
     import ListFpUtils._
     val value: ListFp[ListFp[B]] = this.map(f)
     value.flatten()
-  }
-
-  def filterByFlatMap(f: A => Boolean): ListFp[A] = {
-    flatMap(a => if (f(a)) ListFp(a) else ListFp())
   }
 
   def zipWith[B, C](second: ListFp[B])(f: ((A, B)) => C): ListFp[C] = {
@@ -199,11 +163,11 @@ sealed trait ListFp[+A] {
 
   def splitAt(index: Int): (ListFp[A], ListFp[A]) = {
     @scala.annotation.tailrec
-    def loop(current: ListFp[A], splitted: ListFp[A] = ListFp(), counter: Int = index): (ListFp[A], ListFp[A]) = {
-      if (counter == 0) return (splitted, current)
+    def loop(current: ListFp[A], split: ListFp[A] = ListFp(), counter: Int = index): (ListFp[A], ListFp[A]) = {
+      if (counter == 0) return (split, current)
       current match {
-        case ConsFp(head, next) => loop(next, ConsFp(head, splitted), counter - 1)
-        case NilFp => (splitted, ListFp())
+        case ConsFp(head, next) => loop(next, ConsFp(head, split), counter - 1)
+        case NilFp => (split, ListFp())
       }
     }
 
@@ -222,16 +186,13 @@ object ListFp {
     else ConsFp(as.head, apply(as.tail: _*))
 
   def sequence[A](a: List[Option[A]]): Option[List[A]] = {
-    @scala.annotation.tailrec
-    def loop(a: List[Option[A]], reduced: List[A] = List()): Option[List[A]] = {
-      a match {
-        case ::(None, _) => None
-        case ::(Some(v), next) => loop(next, v :: reduced)
-        case Nil => Some(reduced)
-      }
-    }
 
-    loop(a).map(_.reverse)
+    def add(pair: (List[A], A)): List[A] = pair._2 :: pair._1
+
+    def merge(elem: Option[A], list: Option[List[A]]): Option[List[A]] =
+      list.zip(elem).map(add)
+
+    a.foldRight(Option(List[A]()))(merge)
   }
 
   def traverse[A, B](a: List[A])(f: A => Option[B]): Option[List[B]] = {

@@ -99,18 +99,6 @@ class ListFpTest extends org.scalatest.FunSuite with org.scalatest.matchers.shou
     list.reverse() shouldBe ListFp(4, 3, 2, 1)
   }
 
-  test("reverseFoldLeft") {
-    val empty = ListFp()
-    val singleton = ListFp(1)
-    val twice = ListFp(1, 2)
-    val list = ListFp(1, 2, 3, 4)
-
-    empty.reverseFoldLeft() shouldBe ListFp()
-    singleton.reverseFoldLeft() shouldBe ListFp(1)
-    twice.reverseFoldLeft() shouldBe ListFp(2, 1)
-    list.reverseFoldLeft() shouldBe ListFp(4, 3, 2, 1)
-  }
-
   test("foldRight") {
     val empty = ListFp[Int]()
     val singleton = ListFp(1)
@@ -121,18 +109,6 @@ class ListFpTest extends org.scalatest.FunSuite with org.scalatest.matchers.shou
     singleton.foldRight("")(_ + _) shouldBe "1"
     twice.foldRight("")(_ + _) shouldBe "12"
     list.foldRight("")(_ + _) shouldBe "1234"
-  }
-
-  test("foldLeftByFoldRightRev") {
-    val empty = ListFp[String]()
-    val singleton = ListFp(1)
-    val twice = ListFp(1, 2)
-    val list = ListFp(1, 2, 3, 4)
-
-    empty.foldLeftByFoldRightRev("")(_ + _) shouldBe ""
-    singleton.foldLeftByFoldRightRev("")(_ + _) shouldBe "1"
-    twice.foldLeftByFoldRightRev("")(_ + _) shouldBe "12"
-    list.foldLeftByFoldRightRev("")(_ + _) shouldBe "1234"
   }
 
   test("foldLeftByFoldRight") {
@@ -151,8 +127,8 @@ class ListFpTest extends org.scalatest.FunSuite with org.scalatest.matchers.shou
     val empty = ListFp[String]()
     val list = ListFp(1, 2, 3, 4)
 
-    empty.appendFoldRight(1) shouldBe ListFp(1)
-    list.appendFoldRight(5) shouldBe ListFp(1, 2, 3, 4, 5)
+    empty.append(1) shouldBe ListFp(1)
+    list.append(5) shouldBe ListFp(1, 2, 3, 4, 5)
   }
 
   test("flatten") {
@@ -201,14 +177,6 @@ class ListFpTest extends org.scalatest.FunSuite with org.scalatest.matchers.shou
 
     empty.flatMap(twice) shouldBe ListFp()
     list.flatMap(twice) shouldBe ListFp(1, 1, 2, 2, 3, 3, 4, 4)
-  }
-
-  test("filterByFlatMap") {
-    val empty = ListFp[String]()
-    val list = ListFp(1, 2, 3, 4)
-
-    empty.filterByFlatMap(_.length == 0) shouldBe ListFp()
-    list.filterByFlatMap(_ <= 3) shouldBe ListFp(1, 2, 3)
   }
 
   test("zipWith") {
