@@ -1,5 +1,7 @@
 package answers.list
 
+import scala.math.Numeric
+
 sealed trait ListFp[+A] {
 
   def tail(): ListFp[A] = {
@@ -9,7 +11,7 @@ sealed trait ListFp[+A] {
     }
   }
 
-  def setHead[B >: A](head: B): ListFp[B] = {
+  def replaceHead[B >: A](head: B): ListFp[B] = {
     this match {
       case NilFp => NilFp
       case ConsFp(_, tail) => ConsFp(head, tail)
@@ -30,7 +32,6 @@ sealed trait ListFp[+A] {
     drop(this)
   }
 
-  // EXERCISE 3.5
   def dropWhile(f: A => Boolean): ListFp[A] = {
     @scala.annotation.tailrec
     def loop(l: ListFp[A]): ListFp[A] = {
@@ -53,7 +54,7 @@ sealed trait ListFp[+A] {
       }
     }
 
-    loop(NilFp, this)
+    loop(NilFp, this).reverse()
   }
 
   def length(): Int = {
@@ -62,14 +63,14 @@ sealed trait ListFp[+A] {
 
   def foldLeft[B](z: B)(f: (B, A) => B): B = {
     @scala.annotation.tailrec
-    def loop(as: ListFp[A], z: B): B = {
+    def loop(as: ListFp[A], z: B = z): B = {
       as match {
         case NilFp => z
         case ConsFp(head, tail) => loop(tail, f(z, head))
       }
     }
 
-    loop(this, z)
+    loop(this)
   }
 
   def reverse(): ListFp[A] = {
@@ -89,17 +90,14 @@ sealed trait ListFp[+A] {
   }
 
   def foldRight[B](z: B)(f: (A, B) => B): B = {
-    def loop(current: ListFp[A], z: B = z): B =
-      current match {
-        case NilFp => z
-        case ConsFp(x, xs) => f(x, loop(xs, z))
-      }
-
-    loop(this)
+    this match {
+      case NilFp => z
+      case ConsFp(x, xs) => f(x, xs.foldRight(z)(f))
+    }
   }
 
-  def foldLeftByFoldRightRev[B](z: B)(f: (A, B) => B): B = {
-    reverse().foldRight(z)(f)
+  def foldLeftByFoldRightRev[B](z: B)(f: (B, A) => B): B = {
+    reverse().foldRight(z)((a, b) => f(b, a))
   }
 
   def foldLeftByFoldRight[B](z: B)(f: (B, A) => B): B = {
@@ -115,10 +113,6 @@ sealed trait ListFp[+A] {
 
   def appendFoldRight[B >: A](elem: B): ListFp[B] = {
     foldRight(ListFp(elem))(ConsFp(_, _))
-  }
-
-  def appendFoldLeft[B >: A](elem: B): ListFp[B] = {
-    foldLeft((b: B) => ListFp(b))((delayFunction, head) => a => ConsFp(head, delayFunction(a)))(elem)
   }
 
   def map[B](f: A => B): ListFp[B] = {
@@ -209,7 +203,50 @@ object ListFp {
     if (as.isEmpty) NilFp
     else ConsFp(as.head, apply(as.tail: _*))
 
-  def flatten(listOfLists: ListFp[ListFp[Any]]): ListFp[Any] = {
-    listOfLists.foldLeft(ListFp[Any]())((reduced, a) => reduced.concat(a))
+  def sequence[A](a: List[Option[A]]): Option[List[A]] = {
+    @scala.annotation.tailrec
+    def loop(a: List[Option[A]], reduced: List[A] = List()): Option[List[A]] = {
+      a match {
+        case ::(None, _) => None
+        case ::(Some(v), next) => loop(next, v :: reduced)
+        case Nil => Some(reduced)
+      }
+    }
+
+    loop(a).map(_.reverse)
   }
+
+  def traverse[A, B](a: List[A])(f: A => Option[B]): Option[List[B]] = {
+    @scala.annotation.tailrec
+    def loop(a: List[A], traversed: List[B] = List()): Option[List[B]] = {
+      a match {
+        case ::(head, next) => f(head) match {
+          case Some(get) => loop(next, get :: traversed)
+          case None => None
+        }
+        case Nil => Some(traversed)
+      }
+    }
+
+    loop(a).map(_.reverse)
+  }
+}
+
+object ListFpUtils {
+
+  implicit class NumericList[A: Numeric](val s: ListFp[A]) {
+    def sum(): A = s.foldLeft(Numeric[A].zero)(Numeric[A].plus)
+  }
+
+  implicit class ListOfList[A](val s: ListFp[ListFp[A]]) {
+    def flatten(): ListFp[A] = s.foldLeft(ListFp[A]())((reduced, a) => reduced.concat(a))
+  }
+
+}
+
+object Main extends App {
+
+  import ListFpUtils._
+
+  println(ListFp(1, 2, 3).sum)
 }
