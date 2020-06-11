@@ -123,19 +123,6 @@ class StreamFpTest extends org.scalatest.FunSuite with org.scalatest.matchers.sh
     stream.take(5).toList shouldBe List(0, 1, 1, 2, 3)
   }
 
-  test("constantUnfold") {
-    val stream = StreamFp.constantUnfold(1)
-
-    stream.take(3).toList shouldBe List(1, 1, 1)
-  }
-
-  test("fromUnfold") {
-    val stream = StreamFp.fromUnfold(1)
-
-    stream.take(0).toList shouldBe List()
-    stream.take(3).toList shouldBe List(1, 2, 3)
-  }
-
   test("fibsUnfold") {
     val stream = StreamFp.fibUnfold()
 

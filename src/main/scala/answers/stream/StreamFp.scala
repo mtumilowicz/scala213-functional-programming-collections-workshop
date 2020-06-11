@@ -117,19 +117,17 @@ sealed trait StreamFp[+A] {
 
   def startsWith[B >: A](s: StreamFp[B]): Boolean = {
     @scala.annotation.tailrec
-    def loop(current: StreamFp[A], prefix: StreamFp[B]): Boolean = {
-      current match {
-        case EmptyStreamFp => prefix == EmptyStreamFp
-        case ConsStreamFp(currentH, currentT) => prefix match {
-          case EmptyStreamFp => true
-          case ConsStreamFp(prefixH, prefixT) => if (currentH() == prefixH())
-            loop(currentT(), prefixT())
-          else false
+    def loop(list: StreamFp[A], sequence: StreamFp[B] = s): Boolean = {
+      sequence match {
+        case EmptyStreamFp => true
+        case ConsStreamFp(headS, tailS) => list match {
+          case EmptyStreamFp => false
+          case ConsStreamFp(head, tail) => if (head() == headS()) loop(tail(), tailS()) else false
         }
       }
     }
 
-    loop(this, s)
+    loop(this)
   }
 
   def tails: StreamFp[StreamFp[A]] = {
@@ -185,14 +183,6 @@ object StreamFp {
       case None => EmptyStreamFp
     }
 
-  }
-
-  def constantUnfold[A](a: A): StreamFp[A] = {
-    unfold(a)(_ => Some((a, a)))
-  }
-
-  def fromUnfold(n: Int): StreamFp[Int] = {
-    unfold(n)(s => Some((s, s + 1)))
   }
 
   def fibUnfold(): StreamFp[Int] = {
