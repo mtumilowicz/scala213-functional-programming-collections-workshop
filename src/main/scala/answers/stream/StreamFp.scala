@@ -96,11 +96,11 @@ sealed trait StreamFp[+A] {
     /*
 
     Cons(1, Cons(2, Cons(3, Empty))).map(_ * 2)
-    Cons(1, Cons(2, Cons(3, Empty))).foldRight(Empty)((h, t) => StreamFp.cons(h * 2, t))
+    Cons(1, Cons(2, Cons(3, Empty))).foldRight(Empty)((next, mapped) => StreamFp.cons(next * 2, mapped))
     StreamFp.cons(2, Cons(2, Cons(3, Empty)).foldRight(Empty)(...))
 
      */
-    foldRight(StreamFp.empty[B])((h, t) => StreamFp.cons(f(h), t))
+    foldRight(StreamFp.empty[B])((next, mapped) => StreamFp.cons(f(next), mapped))
   }
 
   def filter(p: A => Boolean): StreamFp[A] = {
