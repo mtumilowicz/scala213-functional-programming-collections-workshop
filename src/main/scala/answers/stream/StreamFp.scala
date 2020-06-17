@@ -2,20 +2,6 @@ package answers.stream
 
 sealed trait StreamFp[+A] {
 
-  def headOption: Option[A] = this match {
-    case EmptyStreamFp => None
-    case ConsStreamFp(h, _) => Some(h())
-  }
-
-  def foldRight[B](z: => B)(f: (A, => B) => B): B =
-    this match {
-      case ConsStreamFp(h, t) => f(h(), t().foldRight(z)(f))
-      case _ => z
-    }
-
-  def exists(p: A => Boolean): Boolean =
-    foldRight(false)((a, b) => p(a) || b)
-
   def toList: List[A] = {
     @scala.annotation.tailrec
     def loop(stream: StreamFp[A], list: List[A] = List()): List[A] = {
@@ -27,6 +13,28 @@ sealed trait StreamFp[+A] {
 
     loop(this)
   }
+
+  def drop(n: Int): StreamFp[A] = {
+    @scala.annotation.tailrec
+    def loop(stream: StreamFp[A], n: Int): StreamFp[A] = {
+      if (n == 0) return stream
+      stream match {
+        case EmptyStreamFp => stream
+        case ConsStreamFp(_, t) => loop(t(), n - 1)
+      }
+    }
+
+    loop(this, n)
+  }
+
+  def foldRight[B](z: => B)(f: (A, => B) => B): B =
+    this match {
+      case ConsStreamFp(h, t) => f(h(), t().foldRight(z)(f))
+      case _ => z
+    }
+
+  def exists(p: A => Boolean): Boolean =
+    foldRight(false)((a, b) => p(a) || b)
 
   def take(n: Int): StreamFp[A] = {
     def listToStream: List[A] => StreamFp[A] =
@@ -44,25 +52,9 @@ sealed trait StreamFp[+A] {
     listToStream(loop(this, n))
   }
 
-  def find(p: A => Boolean): Option[A] =
-    filter(p).headOption
-
-  def drop(n: Int): StreamFp[A] = {
-    @scala.annotation.tailrec
-    def loop(stream: StreamFp[A], n: Int): StreamFp[A] = {
-      if (n == 0) return stream
-      stream match {
-        case EmptyStreamFp => stream
-        case ConsStreamFp(_, t) => loop(t(), n - 1)
-      }
-    }
-
-    loop(this, n)
-  }
-
   def takeWhile(p: A => Boolean): StreamFp[A] = {
     def listToStream: List[A] => StreamFp[A] =
-      _.foldLeft(StreamFp.empty[A])((elem, stream) => StreamFp.cons(stream, elem))
+      _.foldLeft(StreamFp.empty[A])((stream, elem) => StreamFp.cons(elem, stream))
 
     @scala.annotation.tailrec
     def loop(stream: StreamFp[A], taken: List[A] = List()): StreamFp[A] = {
@@ -76,6 +68,9 @@ sealed trait StreamFp[+A] {
     loop(this)
   }
 
+  def find(p: A => Boolean): Option[A] =
+    filter(p).headOption
+
   def forAll(p: A => Boolean): Boolean = {
     foldRight(true)((newElem, forAll) => p(newElem) && forAll)
   }
@@ -86,18 +81,24 @@ sealed trait StreamFp[+A] {
     else StreamFp.empty)
   }
 
-  def headOptionFold: Option[A] = {
+  def headOption: Option[A] = {
     foldRight(Option.empty[A])((newElem, _) => Some(newElem))
   }
 
   def map[B](f: A => B): StreamFp[B] = {
+    /*
+    this match {
+      case EmptyStreamFp => EmptyStreamFp
+      case ConsStreamFp(h, t) => StreamFp.cons(f(h()), t().mapXxx(f))
+    }
+     */
     foldRight(StreamFp.empty[B])((newElem, mapped) => StreamFp.cons(f(newElem), mapped))
   }
 
   def filter(p: A => Boolean): StreamFp[A] = {
-    foldRight(StreamFp.empty[A])((newElem, filtered) => if (p(newElem))
-      StreamFp.cons(newElem, filtered)
-    else filtered)
+    foldRight(StreamFp.empty[A])((h, t) =>
+      if (p(h)) StreamFp.cons(h, t)
+      else t)
   }
 
   def append[B >: A](s: => StreamFp[B]): StreamFp[B] = {

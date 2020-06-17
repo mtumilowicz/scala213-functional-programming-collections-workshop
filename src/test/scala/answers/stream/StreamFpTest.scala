@@ -57,11 +57,13 @@ class StreamFpTest extends org.scalatest.FunSuite with org.scalatest.matchers.sh
     StreamFp.empty[Int].takeWhile(_ < 1).toList shouldBe List()
   }
 
-  test("headOptionFold") {
+  test("headOption") {
     val stream = StreamFp(1, 2, 3)
+    val infinite = StreamFp.constant(1)
 
-    stream.headOptionFold shouldBe Some(1)
-    StreamFp.empty[Int].headOptionFold shouldBe None
+    stream.headOption shouldBe Some(1)
+    StreamFp.empty[Int].headOption shouldBe None
+    infinite.headOption shouldBe Some(1)
   }
 
   test("map") {
@@ -69,6 +71,12 @@ class StreamFpTest extends org.scalatest.FunSuite with org.scalatest.matchers.sh
 
     stream.map(_ + 1).toList shouldBe List(2, 3, 4)
     StreamFp.empty[Int].map(_ + 1).toList shouldBe List()
+  }
+
+  test("map is lazy") {
+    val infinite = StreamFp.constant(1)
+
+    infinite.map(_ * 2)
   }
 
   test("filter") {

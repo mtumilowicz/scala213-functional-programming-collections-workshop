@@ -57,72 +57,11 @@ sealed trait ListFp[+A] {
     loop(NilFp, this).reverse()
   }
 
-  def length(): Int = {
-    foldLeft(0)((acc, _) => acc + 1)
-  }
-
-  def foldLeft[B](z: B)(f: (B, A) => B): B = {
-    @scala.annotation.tailrec
-    def loop(as: ListFp[A], z: B = z): B = {
-      as match {
-        case NilFp => z
-        case ConsFp(head, tail) => loop(tail, f(z, head))
-      }
-    }
-
-    loop(this)
-  }
-
-  def reverse(): ListFp[A] = {
-    foldLeft(ListFp[A]())((reversed, head) => ConsFp(head, reversed))
-  }
-
-  def foldRight[B](z: B)(f: (A, B) => B): B = {
-    this match {
-      case NilFp => z
-      case ConsFp(x, xs) => f(x, xs.foldRight(z)(f))
-    }
-  }
-
   def exists(p: A => Boolean): Boolean =
     this match {
       case NilFp => false
       case ConsFp(head, tail) => p(head) || tail.exists(p) // Because the || operator evaluates its second argument lazily
     }
-
-  // note that foldRight = foldLeft on reversed
-  def foldLeftByFoldRight[B](z: B)(f: (B, A) => B): B = {
-    foldRight((b: B) => b)((a, delayFunction) => b => delayFunction(f(b, a)))(z)
-
-    // 1, 2, 3 - we would like to process element one by one in reverse order
-    // d1 = delayFunction(f(b, 1))
-    // d2 = d1(f(b, 2))
-    // d3 = d2(f(b, 3))
-    // d4 = d3(Nil)
-    // d4 = d3(Nil) = d2(f(Nil, 3)) = d1(f(f(Nil, 3)), 2) = delayFunction(f(f(f(Nil, 3)), 2), 1))
-  }
-
-  def append[B >: A](elem: B): ListFp[B] = {
-    foldRight(ListFp(elem))(ConsFp(_, _))
-  }
-
-  def map[B](f: A => B): ListFp[B] = {
-    foldRight(ListFp[B]())((elem, newList) => ConsFp(f(elem), newList))
-  }
-
-  def filter(f: A => Boolean): ListFp[A] = {
-    flatMap(a => if (f(a)) ListFp(a) else ListFp())
-  }
-
-  def concat[B >: A](second: ListFp[B]): ListFp[B] = {
-    foldRight(second)((prev, concatenated) => ConsFp(prev, concatenated))
-  }
-
-  def flatMap[B](f: A => ListFp[B]): ListFp[B] = {
-    import ListFpUtils._
-    val value: ListFp[ListFp[B]] = this.map(f)
-    value.flatten()
-  }
 
   def zipWith[B, C](second: ListFp[B])(f: ((A, B)) => C): ListFp[C] = {
     @scala.annotation.tailrec
@@ -154,13 +93,6 @@ sealed trait ListFp[+A] {
     listLoop(this)
   }
 
-  def groupBy[B](f: A => B): Map[B, List[A]] = {
-    def aggregate(map: Map[B, List[A]], a: A): Map[B, List[A]] =
-      map.updatedWith(f(a))(_.map(a :: _))
-
-    foldLeft(Map[B, List[A]]())(aggregate)
-  }
-
   def splitAt(index: Int): (ListFp[A], ListFp[A]) = {
     @scala.annotation.tailrec
     def loop(current: ListFp[A], split: ListFp[A] = ListFp(), counter: Int = index): (ListFp[A], ListFp[A]) = {
@@ -173,6 +105,74 @@ sealed trait ListFp[+A] {
 
     val (a, b) = loop(this)
     (a.reverse(), b)
+  }
+
+  def foldLeft[B](z: B)(f: (B, A) => B): B = {
+    @scala.annotation.tailrec
+    def loop(as: ListFp[A], z: B = z): B = {
+      as match {
+        case NilFp => z
+        case ConsFp(head, tail) => loop(tail, f(z, head))
+      }
+    }
+
+    loop(this)
+  }
+
+  def groupBy[B](f: A => B): Map[B, List[A]] = {
+    def aggregate(map: Map[B, List[A]], a: A): Map[B, List[A]] =
+      map.updatedWith(f(a))(_.map(a :: _))
+
+    foldLeft(Map[B, List[A]]())(aggregate)
+  }
+
+  def length(): Int = {
+    foldLeft(0)((acc, _) => acc + 1)
+  }
+
+  def reverse(): ListFp[A] = {
+    foldLeft(ListFp[A]())((reversed, head) => ConsFp(head, reversed))
+  }
+
+  def foldRight[B](z: B)(f: (A, B) => B): B = {
+    this match {
+      case NilFp => z
+      case ConsFp(x, xs) => f(x, xs.foldRight(z)(f))
+    }
+  }
+
+  // note that foldRight = foldLeft on reversed
+  def foldLeftByFoldRight[B](z: B)(f: (B, A) => B): B = {
+    foldRight((b: B) => b)((a, delayFunction) => b => delayFunction(f(b, a)))(z)
+
+    // 1, 2, 3 - we would like to process element one by one in reverse order
+    // d1 = delayFunction(f(b, 1))
+    // d2 = d1(f(b, 2))
+    // d3 = d2(f(b, 3))
+    // d4 = d3(Nil)
+    // d4 = d3(Nil) = d2(f(Nil, 3)) = d1(f(f(Nil, 3)), 2) = delayFunction(f(f(f(Nil, 3)), 2), 1))
+  }
+
+  def append[B >: A](elem: B): ListFp[B] = {
+    foldRight(ListFp(elem))(ConsFp(_, _))
+  }
+
+  def map[B](f: A => B): ListFp[B] = {
+    foldRight(ListFp[B]())((elem, newList) => ConsFp(f(elem), newList))
+  }
+
+  def concat[B >: A](second: ListFp[B]): ListFp[B] = {
+    foldRight(second)((prev, concatenated) => ConsFp(prev, concatenated))
+  }
+
+  def flatMap[B](f: A => ListFp[B]): ListFp[B] = {
+    import ListFpUtils._
+    val value: ListFp[ListFp[B]] = this.map(f)
+    value.flatten()
+  }
+
+  def filter(f: A => Boolean): ListFp[A] = {
+    flatMap(a => if (f(a)) ListFp(a) else ListFp())
   }
 }
 
