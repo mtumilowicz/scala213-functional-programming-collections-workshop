@@ -89,7 +89,7 @@ sealed trait StreamFp[+A] {
     /*
     this match {
       case EmptyStreamFp => EmptyStreamFp
-      case ConsStreamFp(h, t) => StreamFp.cons(f(h()), t().mapXxx(f))
+      case ConsStreamFp(h, t) => StreamFp.cons(f(h()), t().map(f))
     }
      */
     foldRight(StreamFp.empty[B])((newElem, mapped) => StreamFp.cons(f(newElem), mapped))
