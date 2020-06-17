@@ -228,6 +228,6 @@ class ListFpTest extends org.scalatest.FunSuite with org.scalatest.matchers.shou
   }
 
   test("splitAt") {
-    println(ListFp(1,2,3,4,5).splitAt(2))
+    ListFp(1, 2, 3, 4, 5).splitAt(2) shouldBe (ListFp(1, 2), ListFp(3, 4, 5))
   }
 }
