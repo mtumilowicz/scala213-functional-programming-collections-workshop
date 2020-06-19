@@ -6,7 +6,7 @@
 1. https://stackoverflow.com/questions/9809313/scalas-lazy-arguments-how-do-they-work
     * https://stackoverflow.com/a/9809731
 1. https://booksites.artima.com/programming_in_scala_4ed
-    
+* https://medium.com/@wiemzin/variances-in-scala-9c7d17af9dc4
     
 # list
 ```
@@ -61,7 +61,21 @@ case class Cons[+A](head: A, tail: List[A]) extends List[A] // represents nonemp
       classification relative to positions outside the method, where the flip of a pos-
       itive classification is negative, the flip of a negative classification is positive,
       and the flip of a neutral classification is still neutral.
-        
+    * function variance: val x1: Int => CharSequence = (x: AnyVal) => x.toString
+* pattern matching
+    * Pattern matching works a bit like a fancy switch statement that may descend into
+      the structure of the expression it examines and extract subexpressions of that structure
+
+* immutable data structure
+    * When data is immutable, how do we write functions that, for example, add or remove
+      elements from a list? The answer is simple. When we add an element 1 to the front of
+      an existing list, say xs , we return a new list, in this case Cons(1,xs) . Since lists are
+      immutable, we don’t need to actually copy xs ; we can just reuse it. This is called data
+      sharing.
+    * We say that functional data structures are
+      persistent, meaning that existing references are never changed by operations on the
+      data structure
+
 * Cons - (traditionally short for construct)
     * A nonempty list consists of an initial element, head ,
       followed by a List (possibly empty) of remaining elements (the tail )
