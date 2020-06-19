@@ -153,16 +153,16 @@ sealed trait ListFp[+A] {
     // d4 = d3(Nil) = d2(f(Nil, 3)) = d1(f(f(Nil, 3)), 2) = delayFunction(f(f(f(Nil, 3)), 2), 1))
   }
 
-  def append[B >: A](elem: B): ListFp[B] = {
-    foldRight(ListFp(elem))(ConsFp(_, _))
-  }
-
   def map[B](f: A => B): ListFp[B] = {
     foldRight(ListFp[B]())((elem, newList) => ConsFp(f(elem), newList))
   }
 
+  def append[B >: A](elem: B): ListFp[B] = {
+    foldRight(ListFp(elem))(ConsFp(_, _))
+  }
+
   def concat[B >: A](second: ListFp[B]): ListFp[B] = {
-    foldRight(second)((prev, concatenated) => ConsFp(prev, concatenated))
+    foldRight(second)(ConsFp(_, _))
   }
 
   def flatMap[B](f: A => ListFp[B]): ListFp[B] = {

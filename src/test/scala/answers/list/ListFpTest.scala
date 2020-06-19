@@ -123,7 +123,7 @@ class ListFpTest extends org.scalatest.FunSuite with org.scalatest.matchers.shou
     list.foldLeftByFoldRight("")(_ + _) shouldBe "1234"
   }
 
-  test("appendFoldRight") {
+  test("append") {
     val empty = ListFp[String]()
     val list = ListFp(1, 2, 3, 4)
 
@@ -227,7 +227,14 @@ class ListFpTest extends org.scalatest.FunSuite with org.scalatest.matchers.shou
     ListFp.traverse(List())(parse) shouldBe Some(List())
   }
 
+  test("concat") {
+    val l1 = ListFp(1, 2, 3)
+    val l2 = ListFp(4, 5)
+
+    l1.concat(l2) shouldBe ListFp(1, 2, 3, 4, 5)
+  }
+
   test("splitAt") {
-    ListFp(1, 2, 3, 4, 5).splitAt(2) shouldBe (ListFp(1, 2), ListFp(3, 4, 5))
+    ListFp(1, 2, 3, 4, 5).splitAt(2) shouldBe(ListFp(1, 2), ListFp(3, 4, 5))
   }
 }
