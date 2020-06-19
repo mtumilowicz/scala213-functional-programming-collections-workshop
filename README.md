@@ -8,14 +8,8 @@
 1. https://booksites.artima.com/programming_in_scala_4ed
 * https://medium.com/@wiemzin/variances-in-scala-9c7d17af9dc4
 * https://docs.scala-lang.org/overviews/scala-book/classes.html
-    
-# list
-```
-sealed trait List[+A] // data type
-case object Nil extends List[Nothing] // represents the empty lis
-case class Cons[+A](head: A, tail: List[A]) extends List[A] // represents nonempty lists
-```
 
+# introduction to scala
 * covariance: https://github.com/mtumilowicz/java11-covariance-contravariance-invariance
     * covariant: `trait Queue[+T] { ... }`
         ```
@@ -66,43 +60,10 @@ case class Cons[+A](head: A, tail: List[A]) extends List[A] // represents nonemp
 * pattern matching
     * Pattern matching works a bit like a fancy switch statement that may descend into
       the structure of the expression it examines and extract subexpressions of that structure
-
-* immutable data structure
-    * When data is immutable, how do we write functions that, for example, add or remove
-      elements from a list? The answer is simple. When we add an element 1 to the front of
-      an existing list, say xs , we return a new list, in this case Cons(1,xs) . Since lists are
-      immutable, we don’t need to actually copy xs ; we can just reuse it. This is called data
-      sharing.
-    * We say that functional data structures are
-      persistent, meaning that existing references are never changed by operations on the
-      data structure
-
-* Cons - (traditionally short for construct)
-    * A nonempty list consists of an initial element, head ,
-      followed by a List (possibly empty) of remaining elements (the tail )
-
 * useful tricks
     * Variadic function syntax: `def apply[A](as: A*): List[A] =`
     * convert to varargs: `as.tail: _*`
-    * sealed class, case class
     * Any two values x and y can be compared for equality in Scala using the expression x == y
-* foldRight
-    def foldRight[A,B](as: List[A], z: B)(f: (A, B) => B): B =
-        as match {
-        case Nil => z
-        case Cons(x, xs) => f(x, foldRight(xs, z)(f))
-    }
-    * One way of describing what foldRight does is that it replaces the constructors of the list, Nil 
-    and Cons , with z and f , illustrated here:
-        * Cons(1, Cons(2, Nil)) -> f (1, f (2, z ))
-    ```
-    Cons(1, Cons(2, Cons(3, Nil))).foldRight(0)(_ + _)
-    1 + Cons(2, Cons(3, Nil)).foldRight(0)(_ + _)
-    1 + (2 + Cons(3, Nil).foldRight(0)(_ + _)
-    1 + (2 + (3 + Nil.foldRight(0)(_ + _)
-    1 + (2 + (3 + (0)))
-    6
-    ```
 * Underscore notation for anonymous functions
     * You can think of the underscore as a “blank” in the expression that needs
       to be “filled in.”
@@ -115,9 +76,6 @@ case class Cons[+A](head: A, tail: List[A]) extends List[A] // represents nonemp
     * _ + _ - (x,y) => x + y
     * _.head - xs => xs.head
     * _ drop _ - (xs,n) => xs.drop(n)
-* LISTS IN THE STANDARD LIBRARY
-    * 1 :: 2 :: Nil
-    * pattern matching case h :: t
 * pattern matching
     * In general a match expression
       lets you select using arbitrary patterns
@@ -245,4 +203,45 @@ case class Cons[+A](head: A, tail: List[A]) extends List[A] // represents nonemp
     }
     ```
     * The main/primary constructor is defined when you define your class
-    * 
+# list
+```
+sealed trait List[+A] // data type
+case object Nil extends List[Nothing] // represents the empty lis
+case class Cons[+A](head: A, tail: List[A]) extends List[A] // represents nonempty lists
+```
+
+* immutable data structure
+    * When data is immutable, how do we write functions that, for example, add or remove
+      elements from a list? The answer is simple. When we add an element 1 to the front of
+      an existing list, say xs , we return a new list, in this case Cons(1,xs) . Since lists are
+      immutable, we don’t need to actually copy xs ; we can just reuse it. This is called data
+      sharing.
+    * We say that functional data structures are
+      persistent, meaning that existing references are never changed by operations on the
+      data structure
+
+* Cons - (traditionally short for construct)
+    * A nonempty list consists of an initial element, head ,
+      followed by a List (possibly empty) of remaining elements (the tail )
+* foldRight
+    def foldRight[A,B](as: List[A], z: B)(f: (A, B) => B): B =
+        as match {
+        case Nil => z
+        case Cons(x, xs) => f(x, foldRight(xs, z)(f))
+    }
+    * One way of describing what foldRight does is that it replaces the constructors of the list, Nil 
+    and Cons , with z and f , illustrated here:
+        * Cons(1, Cons(2, Nil)) -> f (1, f (2, z ))
+    ```
+    Cons(1, Cons(2, Cons(3, Nil))).foldRight(0)(_ + _)
+    1 + Cons(2, Cons(3, Nil)).foldRight(0)(_ + _)
+    1 + (2 + Cons(3, Nil).foldRight(0)(_ + _)
+    1 + (2 + (3 + Nil.foldRight(0)(_ + _)
+    1 + (2 + (3 + (0)))
+    6
+    ```
+* LISTS IN THE STANDARD LIBRARY
+    * 1 :: 2 :: Nil
+    * pattern matching case h :: t
+
+# stream
