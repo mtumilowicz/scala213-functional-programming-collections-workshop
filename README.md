@@ -7,6 +7,7 @@
     * https://stackoverflow.com/a/9809731
 1. https://booksites.artima.com/programming_in_scala_4ed
 * https://medium.com/@wiemzin/variances-in-scala-9c7d17af9dc4
+* https://docs.scala-lang.org/overviews/scala-book/classes.html
     
 # list
 ```
@@ -180,4 +181,68 @@ case class Cons[+A](head: A, tail: List[A]) extends List[A] // represents nonemp
     *  If you match against case classes
       that inherit from a sealed class, the compiler will flag missing combinations
       of patterns with a warning message
+* classes, fields, objects
+    * defined a ChecksumAccumulator class and gave it a var field named sum :
+      class ChecksumAccumulator {
+        private var sum = 0
+      }
+    *  Public is Scala’s default access level
+    * In the absence of any explicit return
+      statement, a Scala method returns the last value computed by the method
+    * class MyClass(index: Int, name: String)
+        * Scala compiler will produce a class that has two private
+          instance variables, an Int named index and a String named name , and a
+          constructor that takes initial values for those variables as parameters
+    * class MyClass(val index: Int, val name: String) // readonly fields with getters
+        * println(p.firstName + " " + p.lastName)
+    * classes in Scala cannot have static members
+        * Instead, Scala has singleton objects
+        * When a singleton object
+          shares the same name with a class, it is called that class’s companion object
+        *  The class is called the companion class of the singleton object
+        *  A class
+          and its companion object can access each other’s private members
+        * If you are a Java programmer, one way to think of singleton objects is
+          as the home for any static methods you might have written in Java
+        * A singleton object is more than a holder of static methods, however. It is a
+          first-class object. You can think of a singleton object’s name, therefore, as a
+          “name tag” attached to the object
+        * One difference between classes and singleton objects is that singleton
+          objects cannot take parameters, whereas classes can
+        *  have the same
+          initialization semantics as Java statics
+        * In particular, a singleton object is
+          initialized the first time some code accesses it
+    ```
+    class Person(var firstName: String, var lastName: String) {
     
+        println("the constructor begins")
+    
+        // 'public' access by default
+        var age = 0
+    
+        // some class fields
+        private val HOME = System.getProperty("user.home")
+    
+        // some methods
+        override def toString(): String = s"$firstName $lastName is $age years old"
+    
+        def printHome(): Unit = println(s"HOME = $HOME")    
+        def printFullName(): Unit = println(this) 
+  
+        /**
+         * A secondary constructor.
+         */
+        def this(firstName: String) {
+          this(firstName, "", 0);
+          println("\nNo last name or age given.")
+        }
+    
+        printHome()
+        printFullName()
+        println("you've reached the end of the constructor")
+    
+    }
+    ```
+    * The main/primary constructor is defined when you define your class
+    * 
