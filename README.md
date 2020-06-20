@@ -245,3 +245,97 @@ case class Cons[+A](head: A, tail: List[A]) extends List[A] // represents nonemp
     * pattern matching case h :: t
 
 # stream
+* To say a function is non-strict just means
+  that the function may choose not to evaluate one or more of its arguments
+* If you invoke square(sys.error("failure")) , you’ll
+  get an exception before square has a chance to do anything, since the sys.error
+  ("failure") expression will be evaluated before entering the body of square
+* Boolean functions && and || are non-strict
+* The arguments we’d like to pass unevaluated have an arrow => immediately before
+  their type. In the body of the function, we don’t need to do anything special to evalu-
+  ate an argument annotated with => . We just reference the identifier as usual
+  * Nor do
+    we have to do anything special to call this function. We just use the normal function
+    call syntax, and Scala takes care of wrapping the expression in a thunk for us
+* Scala
+  won’t (by default) cache the result of evaluating an argument
+* Adding the lazy keyword to a val declaration will cause Scala to delay evaluation of
+  the right-hand side of that lazy val declaration until it’s first referenced. It will also
+  cache the result so that subsequent references to it don’t trigger repeated evaluation
+* Formal definition of strictness
+  * If the evaluation of an expression runs forever or throws an error instead of returning
+  a definite value, we say that the expression doesn’t terminate, or that it evaluates to
+  bottom. A function f is strict if the expression f(x) evaluates to bottom for all x that
+  evaluate to bottom.
+* As a final bit of terminology, we say that a non-strict function in Scala takes its argu-
+  ments by name rather than by value
+* lazy val initialization scheme uses double-checked locking to initialize the lazy val only once
+```
+sealed trait Stream[+A]
+case object Empty extends Stream[Nothing]
+case class Cons[+A](h: () => A, t: () => Stream[A]) extends Stream[A] // head and a tail are both non-strict
+
+object Stream {
+def cons[A](hd: => A, tl: => Stream[A]): Stream[A] = { // cache the head and tail as lazy values to avoid repeated evaluation
+lazy val head = hd
+lazy val tail = tl
+Cons(() => head, () => tail)
+}
+def empty[A]: Stream[A] = Empty
+def apply[A](as: A*): Stream[A] =
+if (as.isEmpty) empty else cons(as.head, apply(as.tail: _*))
+}
+```
+* type looks identical to our List type, except that the Cons data constructor takes
+  explicit thunks ( () => A and () => Stream[A] ) instead of regular strict values
+* in standard
+    * LazyList
+    ```
+    list match {
+      case LazyList.empty => 1
+      case h #:: t => h
+    }
+    ```
+* By convention, smart constructors typically lowercase the first letter of the
+  corresponding data constructor
+  * smart constructors, which is what we call a
+    function for constructing a data type that ensures some additional invariant or pro-
+    vides a slightly different signature than the “real” constructors used for pattern match-
+    ing
+```
+def apply[A](as: A*): Stream[A] =
+if (as.isEmpty) empty
+else cons(as.head, apply(as.tail: _*))
+```
+* Again, Scala takes care of wrapping the arguments to cons in thunks, so the as.head
+  and apply(as.tail: _*) expressions won’t be evaluated until we force the Stream .
+```
+def foldRight[B](z: => B)(f: (A, => B) => B): B =
+this match {
+case Cons(h,t) => f(h(), t().foldRight(z)(f))
+case _ => z
+}
+```
+* note how our combining function f is non-strict in its second parameter
+    * If f chooses not to evaluate its second parameter, this terminates the traversal early
+```
+def exists(p: A => Boolean): Boolean =
+foldRight(false)((a, b) => p(a) || b
+```
+* If p(a) returns true , b will never be evaluated and the computation terminates early
+* implementations are incremental—they don’t fully generate their answers. 
+    * It’s not until some other computation looks at the elements of the resulting Stream that the 
+    computation to generate that Stream actually takes place—and then it
+    will do just enough work to generate the requested elements. 
+    * Because of this incremental nature, we can call these functions one after another without 
+    fully instantiating the intermediate results.
+* we can reuse filter to define find , a method to return just the first element that matches 
+if it exists
+    * Even though filter transforms the whole stream, that transformation is done lazily, so find 
+    terminates as soon as a match is found:
+    ```
+    def find(p: A => Boolean): Option[A] = filter(p).headOption
+    ```
+    * Stream.filter tries to find the first matching value and if there is none, it will search forever
+        * s.filter(_ => false) will never terminates on infinite stream
+        * LazyList - OK
