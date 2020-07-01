@@ -167,8 +167,7 @@ sealed trait ListFp[+A] {
 
   def flatMap[B](f: A => ListFp[B]): ListFp[B] = {
     import ListFpUtils._
-    val value: ListFp[ListFp[B]] = this.map(f)
-    value.flatten()
+    this.map(f).flatten()
   }
 
   def filter(f: A => Boolean): ListFp[A] = {
