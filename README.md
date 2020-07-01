@@ -339,3 +339,14 @@ if it exists
     * Stream.filter tries to find the first matching value and if there is none, it will search forever
         * s.filter(_ => false) will never terminates on infinite stream
         * LazyList - OK
+* The unfold function is an example of what’s sometimes called a corecursive func-
+  tion. Whereas a recursive function consumes data, a corecursive function produces
+  data
+# trees
+sealed trait Tree[+A]
+case class Leaf[A](value: A) extends Tree[A]
+case class Branch[A](left: Tree[A], right: Tree[A]) extends Tree[A]
+
+sealed trait Tree[+A]
+case object Empty extends Tree[Nothing]
+case class Branch[A](value: A, left: Tree[A], right: Tree[A]) extends Tree[A]
