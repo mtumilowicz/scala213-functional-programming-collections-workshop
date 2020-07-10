@@ -10,53 +10,49 @@
 * https://docs.scala-lang.org/overviews/scala-book/classes.html
 
 # introduction to scala
-* covariance: https://github.com/mtumilowicz/java11-covariance-contravariance-invariance
-    * covariant: `trait Queue[+T] { ... }`
-        ```
-        class Queue[+T] {
-        def enqueue(x: T) =
-            ...
-        }
-        
-        error: covariant type T occurs in contravariant position in type T of value x
-        def enqueue(x: T) =
-        ```
-    * nonvariant: `trait Queue[T] { ... }`
-    * contravariant: `trait Queue[-T] { ... }`
-    * The + and - symbols you can place next to type parameters are called variance annotations
-    * To verify correctness of variance annotations, the Scala compiler clas-
-      sifies all positions in a class or trait body as positive, negative or neutral.
-      A “position” is any location in the class or trait (but from now on we’ll just
-      write “class”) body where a type parameter may be used
-        * For example, every
-          method value parameter is a position because a method value parameter has
-          a type
-    * Type parameters annotated with + may only be used in positive positions,
-      while type parameters annotated with - may only be used in negative po-
-      sitions
-    * A type parameter with no variance annotation may be used in any
-      position, and is, therefore, the only kind of type parameter that can be used
-      in neutral positions of the class body
-    * Once the classifications are computed, the compiler checks that each type
-      parameter is only used in positions that are classified appropriately
-      ```
-      abstract class Cat[-T, +U] {
-      ...
-      }
-      ```
-      * In this
-        case, T is only used in negative positions, and U is only used in positive
-        positions. So class Cat is type correct.
-    * To classify the positions, the compiler starts from the declaration of a
-      type parameter and then moves inward through deeper nesting levels. Po-
-      sitions at the top level of the declaring class are classified as positive. By
-      default, positions at deeper nesting levels are classified the same as that at
-      enclosing levels, but there are a handful of exceptions where the classifica-
-      tion changes. Method value parameter positions are classified to the flipped
-      classification relative to positions outside the method, where the flip of a pos-
-      itive classification is negative, the flip of a negative classification is positive,
-      and the flip of a neutral classification is still neutral.
-    * function variance: val x1: Int => CharSequence = (x: AnyVal) => x.toString
+## variance
+* https://github.com/mtumilowicz/java11-covariance-contravariance-invariance
+* https://dzone.com/articles/scala-generics-part-2-covariance-and-contravariance-in-generics
+* covariant: `trait Queue[+T] { ... }`
+    ```
+    class Queue[+T] {
+    def enqueue(x: T) =
+        ...
+    }
+    
+    error: covariant type T occurs in contravariant position in type T of value x
+    def enqueue(x: T) =
+    ```
+* nonvariant: `trait Queue[T] { ... }`
+* contravariant: `trait Queue[-T] { ... }`
+* The + and - symbols you can place next to type parameters are called variance annotations
+* To verify correctness of variance annotations, the Scala compiler clas-
+  sifies all positions in a class or trait body as positive, negative or neutral.
+  A “position” is any location in the class or trait (but from now on we’ll just
+  write “class”) body where a type parameter may be used
+    * For example, every
+      method value parameter is a position because a method value parameter has
+      a type
+* Type parameters annotated with + may only be used in positive positions,
+  while type parameters annotated with - may only be used in negative po-
+  sitions
+* A type parameter with no variance annotation may be used in any
+  position, and is, therefore, the only kind of type parameter that can be used
+  in neutral positions of the class body
+* Once the classifications are computed, the compiler checks that each type
+  parameter is only used in positions that are classified appropriately
+* To classify the positions, the compiler starts from the declaration of a
+  type parameter and then moves inward through deeper nesting levels. Po-
+  sitions at the top level of the declaring class are classified as positive. By
+  default, positions at deeper nesting levels are classified the same as that at
+  enclosing levels, but there are a handful of exceptions where the classifica-
+  tion changes. Method value parameter positions are classified to the flipped
+  classification relative to positions outside the method, where the flip of a pos-
+  itive classification is negative, the flip of a negative classification is positive,
+  and the flip of a neutral classification is still neutral.
+* function variance: val x1: Int => CharSequence = (x: AnyVal) => x.toString
+
+
 * pattern matching
     * Pattern matching works a bit like a fancy switch statement that may descend into
       the structure of the expression it examines and extract subexpressions of that structure
