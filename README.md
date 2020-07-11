@@ -54,7 +54,7 @@
 
 
 * useful tricks
-    * Variadic function syntax: `def apply[A](as: A*): List[A] =`
+    * Variadic function syntax: `def apply[A](as: A*): List[A] = ...`
     * convert to varargs: `as.tail: _*`
     * Any two values x and y can be compared for equality in Scala using the expression x == y
 ## underscore notation for anonymous functions
@@ -69,8 +69,23 @@ be inferred
 ## pattern matching
 * Pattern matching works a bit like a fancy switch statement that may descend into
   the structure of the expression it examines and extract subexpressions of that structure
-* In general a match expression
-  lets you select using arbitrary patterns
+* In general a match expression lets you select using arbitrary patterns
+* selector match { alternatives }
+    * an arrow symbol => separates the pattern from the expressions
+    * a constant pattern matches values that are equal to the constant with respect to ==
+    * a variable pattern like e matches every value
+        * variable then refers to that value in the right hand side of the case clause
+    * The wildcard pattern ( _ ) also matches every value, but it does not introduce a variable 
+    name to refer to that value
+        * used as a default, catch-all alternative
+        * can also be used to ignore parts of an object that you do not care about
+    * constructor pattern looks like UnOp("-", e)
+* Match expressions can be seen as a generalization of Java-style switch
+    * there are three differences to keep in mind
+        * match is an expression in Scala (i.e., it always results in a value)
+        * Scala’s alternative expressions never "fall through" into the next case
+        * if none of the patterns match, an exception named MatchError is thrown
+## case classes
 * twin constructs: case classes and pattern matching
 * case classes are Scala’s way to allow pattern matching on objects without requiring 
 a large amount of boilerplate
@@ -93,22 +108,8 @@ a large amount of boilerplate
             * You specify the changes you’d like to make by using named parameters. For any
             parameter you don’t specify, the value from the old object is used
     * the biggest advantage of case classes is that they support pattern matching
-* selector match { alternatives }
-    * an arrow symbol => separates the pattern from the expressions
-    * a constant pattern matches values that are equal to the constant with respect to ==
-    * a variable pattern like e matches every value
-        * variable then refers to that value in the right hand side of the case clause
-    * The wildcard pattern ( _ ) also matches every value, but it does not introduce a variable 
-    name to refer to that value
-        * used as a default, catch-all alternative
-        * can also be used to ignore parts of an object that you do not care about
-    * constructor pattern looks like UnOp("-", e)
-* Match expressions can be seen as a generalization of Java-style switch
-    * there are three differences to keep in mind
-        * match is an expression in Scala (i.e., it always results in a value)
-        * Scala’s alternative expressions never "fall through" into the next case
-        * if none of the patterns match, an exception named MatchError is thrown
-### sealed classes
+
+## sealed classes
 * Scala compiler help in detecting missing combinations of patterns in a match expression
     * compiler needs to be able to tell which are the possible cases
     * in general, this is impossible because new case classes can be defined at any time 
@@ -167,6 +168,31 @@ flag missing combinations of patterns with a warning message
   objects cannot take parameters, whereas classes can
 * have the same initialization semantics as Java statics
 * singleton object is initialized the first time some code accesses it
+## non-strictness
+* To say a function is non-strict just means that the function may choose not to evaluate its arguments
+* Boolean functions && and || are non-strict
+* if you invoke `standard_method(sys.error("failure"))` you’ll get an exception - `sys.error("failure")` 
+will be evaluated before entering the body of the method
+* The arguments we’d like to pass unevaluated have an arrow => immediately before
+  their type. In the body of the function, we don’t need to do anything special to evalu-
+  ate an argument annotated with => . We just reference the identifier as usual
+  * Nor do
+    we have to do anything special to call this function. We just use the normal function
+    call syntax, and Scala takes care of wrapping the expression in a thunk for us
+* Scala won’t (by default) cache the result of evaluating an argument
+## lazy evaluation
+* Adding the lazy keyword to a val declaration will cause Scala to delay evaluation of
+  the right-hand side of that lazy val declaration until it’s first referenced. It will also
+  cache the result so that subsequent references to it don’t trigger repeated evaluation
+* Formal definition of strictness
+  * If the evaluation of an expression runs forever or throws an error instead of returning
+  a definite value, we say that the expression doesn’t terminate, or that it evaluates to
+  bottom. A function f is strict if the expression f(x) evaluates to bottom for all x that
+  evaluate to bottom.
+* As a final bit of terminology, we say that a non-strict function in Scala takes its argu-
+  ments by name rather than by value
+* lazy val initialization scheme uses double-checked locking to initialize the lazy val only once
+
 # list
 * immutable data structure
     * how we modify them?
@@ -210,63 +236,25 @@ case class Cons[+A](head: A, tail: List[A]) extends List[A] // represents nonemp
     * `case h :: t` - split into head and tail
 
 # stream
-* To say a function is non-strict just means
-  that the function may choose not to evaluate one or more of its arguments
-* If you invoke square(sys.error("failure")) , you’ll
-  get an exception before square has a chance to do anything, since the sys.error
-  ("failure") expression will be evaluated before entering the body of square
-* Boolean functions && and || are non-strict
-* The arguments we’d like to pass unevaluated have an arrow => immediately before
-  their type. In the body of the function, we don’t need to do anything special to evalu-
-  ate an argument annotated with => . We just reference the identifier as usual
-  * Nor do
-    we have to do anything special to call this function. We just use the normal function
-    call syntax, and Scala takes care of wrapping the expression in a thunk for us
-* Scala
-  won’t (by default) cache the result of evaluating an argument
-* Adding the lazy keyword to a val declaration will cause Scala to delay evaluation of
-  the right-hand side of that lazy val declaration until it’s first referenced. It will also
-  cache the result so that subsequent references to it don’t trigger repeated evaluation
-* Formal definition of strictness
-  * If the evaluation of an expression runs forever or throws an error instead of returning
-  a definite value, we say that the expression doesn’t terminate, or that it evaluates to
-  bottom. A function f is strict if the expression f(x) evaluates to bottom for all x that
-  evaluate to bottom.
-* As a final bit of terminology, we say that a non-strict function in Scala takes its argu-
-  ments by name rather than by value
-* lazy val initialization scheme uses double-checked locking to initialize the lazy val only once
 ```
 sealed trait Stream[+A]
 case object Empty extends Stream[Nothing]
 case class Cons[+A](h: () => A, t: () => Stream[A]) extends Stream[A] // head and a tail are both non-strict
 
 object Stream {
-def cons[A](hd: => A, tl: => Stream[A]): Stream[A] = { // cache the head and tail as lazy values to avoid repeated evaluation
-lazy val head = hd
-lazy val tail = tl
-Cons(() => head, () => tail)
-}
-def empty[A]: Stream[A] = Empty
-def apply[A](as: A*): Stream[A] =
-if (as.isEmpty) empty else cons(as.head, apply(as.tail: _*))
+    def cons[A](hd: => A, tl: => Stream[A]): Stream[A] = { // cache the head and tail as lazy values to avoid repeated evaluation
+        lazy val head = hd
+        lazy val tail = tl
+        Cons(() => head, () => tail)
+    }
+
+    def empty[A]: Stream[A] = Empty
+    def apply[A](as: A*): Stream[A] = if (as.isEmpty) empty else cons(as.head, apply(as.tail: _*))
 }
 ```
 * type looks identical to our List type, except that the Cons data constructor takes
   explicit thunks ( () => A and () => Stream[A] ) instead of regular strict values
-* in standard
-    * LazyList
-    ```
-    list match {
-      case LazyList.empty => 1
-      case h #:: t => h
-    }
-    ```
-* By convention, smart constructors typically lowercase the first letter of the
-  corresponding data constructor
-  * smart constructors, which is what we call a
-    function for constructing a data type that ensures some additional invariant or pro-
-    vides a slightly different signature than the “real” constructors used for pattern match-
-    ing
+* generator
 ```
 def apply[A](as: A*): Stream[A] =
 if (as.isEmpty) empty
@@ -274,6 +262,7 @@ else cons(as.head, apply(as.tail: _*))
 ```
 * Again, Scala takes care of wrapping the arguments to cons in thunks, so the as.head
   and apply(as.tail: _*) expressions won’t be evaluated until we force the Stream .
+* fold right
 ```
 def foldRight[B](z: => B)(f: (A, => B) => B): B =
 this match {
@@ -307,11 +296,17 @@ if it exists
 * The unfold function is an example of what’s sometimes called a corecursive func-
   tion. Whereas a recursive function consumes data, a corecursive function produces
   data
+## standard library
+* `LazyList`
+    ```
+    list match {
+      case LazyList.empty => 1
+      case h #:: t => h
+    }
+    ```
 # trees
-sealed trait Tree[+A]
-case class Leaf[A](value: A) extends Tree[A]
-case class Branch[A](left: Tree[A], right: Tree[A]) extends Tree[A]
-
+```
 sealed trait Tree[+A]
 case object Empty extends Tree[Nothing]
 case class Branch[A](value: A, left: Tree[A], right: Tree[A]) extends Tree[A]
+```
