@@ -99,104 +99,89 @@ a large amount of boilerplate
             parameter you don’t specify, the value from the old object is used
     * the biggest advantage of case classes is that they support pattern matching
 * selector match { alternatives }
-* An arrow symbol =>
-  separates the pattern from the expressions
-* A constant pattern like "+" or 1 matches values that are equal to the
-  constant with respect to ==
-* A variable pattern like e matches every value
-    * variable then refers to that value in the right hand side of the case clause
-* The wildcard pattern ( _ ) also
-  matches every value, but it does not introduce a variable name to refer to that
-  value
-*  constructor pattern looks like UnOp("-", e)
-* Match expressions can be seen as a generalization of Java-style switch es
-* However, there are three differences to keep in mind: First, match is an
-  expression in Scala (i.e., it always results in a value). Second, Scala’s alter-
-  native expressions never “fall through” into the next case. Third, if none of
-  the patterns match, an exception named MatchError is thrown
-* Kinds of patterns
-    * Wildcard patterns
-        * wildcard pattern ( _ ) matches any object whatsoever
+    * an arrow symbol => separates the pattern from the expressions
+    * a constant pattern matches values that are equal to the constant with respect to ==
+    * a variable pattern like e matches every value
+        * variable then refers to that value in the right hand side of the case clause
+    * The wildcard pattern ( _ ) also matches every value, but it does not introduce a variable 
+    name to refer to that value
         * used as a default, catch-all alternative
         * can also be used to ignore parts of an object that you do not care about
-* Sealed classes
-    * You can enlist the help of the Scala compiler in detecting missing com-
-      binations of patterns in a match expression. To do this, the compiler needs
-      to be able to tell which are the possible cases. In general, this is impossible
-      in Scala because new case classes can be defined at any time and in arbitrary
-      compilation units. For instance, nothing would prevent you from adding a
-      fifth case class to the Expr class hierarchy in a different compilation unit
-      from the one where the other four cases are defined.
-    * The alternative is to make the superclass of your case classes sealed. A
-      sealed class cannot have any new subclasses added except the ones in the
-      same file
-    *  If you match against case classes
-      that inherit from a sealed class, the compiler will flag missing combinations
-      of patterns with a warning message
-* classes, fields, objects
-    * defined a ChecksumAccumulator class and gave it a var field named sum :
-      class ChecksumAccumulator {
-        private var sum = 0
+    * constructor pattern looks like UnOp("-", e)
+* Match expressions can be seen as a generalization of Java-style switch
+    * there are three differences to keep in mind
+        * match is an expression in Scala (i.e., it always results in a value)
+        * Scala’s alternative expressions never "fall through" into the next case
+        * if none of the patterns match, an exception named MatchError is thrown
+### sealed classes
+* Scala compiler help in detecting missing combinations of patterns in a match expression
+    * compiler needs to be able to tell which are the possible cases
+    * in general, this is impossible because new case classes can be defined at any time 
+    and in arbitrary compilation units
+* alternative is to make the superclass of your case classes sealed
+    * sealed class cannot have any new subclasses added except the ones in the same file
+* if you match against case classes that inherit from a sealed class, the compiler will 
+flag missing combinations of patterns with a warning message
+
+# classes, fields, objects
+* public is default access level
+* defined a ChecksumAccumulator class and gave it a var field named sum :
+  class ChecksumAccumulator {
+    private var sum = 0
+  }
+* in the absence of any explicit return statement - method returns the last computed value
+* `class MyClass(index: Int, name: String)`
+    * compiler will produce a class
+        * two private instance variables
+        * two args constructor
+* `class MyClass(val index: Int, val name: String)`
+    * readonly fields with getters
+    * `println(p.firstName + " " + p.lastName)`
+* classes in Scala cannot have static members
+    * instead - singleton objects
+    * singleton object with the same name as a class - it is called class’s companion object
+        * class is called the companion class of the singleton object
+    * class and its companion object can access each other’s private members
+    * for Java programmers - think of singleton objects as the home for static methods 
+    * A singleton object is more than a holder of static methods, however. It is a
+      first-class object. You can think of a singleton object’s name, therefore, as a
+      “name tag” attached to the object
+    * One difference between classes and singleton objects is that singleton
+      objects cannot take parameters, whereas classes can
+    * have the same initialization semantics as Java statics
+    * singleton object is initialized the first time some code accesses it
+```
+class Person(var firstName: String, var lastName: String) {
+
+    println("the constructor begins")
+
+    // 'public' access by default
+    var age = 0
+
+    // some class fields
+    private val HOME = System.getProperty("user.home")
+
+    // some methods
+    override def toString(): String = s"$firstName $lastName is $age years old"
+
+    def printHome(): Unit = println(s"HOME = $HOME")    
+    def printFullName(): Unit = println(this) 
+
+      /**
+       * A secondary constructor.
+       */
+      def this(firstName: String) {
+        this(firstName, "", 0);
+        println("\nNo last name or age given.")
       }
-    *  Public is Scala’s default access level
-    * In the absence of any explicit return
-      statement, a Scala method returns the last value computed by the method
-    * class MyClass(index: Int, name: String)
-        * Scala compiler will produce a class that has two private
-          instance variables, an Int named index and a String named name , and a
-          constructor that takes initial values for those variables as parameters
-    * class MyClass(val index: Int, val name: String) // readonly fields with getters
-        * println(p.firstName + " " + p.lastName)
-    * classes in Scala cannot have static members
-        * Instead, Scala has singleton objects
-        * When a singleton object
-          shares the same name with a class, it is called that class’s companion object
-        *  The class is called the companion class of the singleton object
-        *  A class
-          and its companion object can access each other’s private members
-        * If you are a Java programmer, one way to think of singleton objects is
-          as the home for any static methods you might have written in Java
-        * A singleton object is more than a holder of static methods, however. It is a
-          first-class object. You can think of a singleton object’s name, therefore, as a
-          “name tag” attached to the object
-        * One difference between classes and singleton objects is that singleton
-          objects cannot take parameters, whereas classes can
-        *  have the same
-          initialization semantics as Java statics
-        * In particular, a singleton object is
-          initialized the first time some code accesses it
-    ```
-    class Person(var firstName: String, var lastName: String) {
-    
-        println("the constructor begins")
-    
-        // 'public' access by default
-        var age = 0
-    
-        // some class fields
-        private val HOME = System.getProperty("user.home")
-    
-        // some methods
-        override def toString(): String = s"$firstName $lastName is $age years old"
-    
-        def printHome(): Unit = println(s"HOME = $HOME")    
-        def printFullName(): Unit = println(this) 
   
-        /**
-         * A secondary constructor.
-         */
-        def this(firstName: String) {
-          this(firstName, "", 0);
-          println("\nNo last name or age given.")
-        }
-    
-        printHome()
-        printFullName()
-        println("you've reached the end of the constructor")
-    
-    }
-    ```
-    * The main/primary constructor is defined when you define your class
+      printHome()
+      printFullName()
+      println("you've reached the end of the constructor")
+  
+  }
+  ```
+* The main/primary constructor is defined when you define your class
 # list
 ```
 sealed trait List[+A] // data type
