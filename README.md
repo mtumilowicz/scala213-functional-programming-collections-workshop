@@ -53,27 +53,22 @@
 * function variance: val x1: Int => CharSequence = (x: AnyVal) => x.toString
 
 
-* pattern matching
-    * Pattern matching works a bit like a fancy switch statement that may descend into
-      the structure of the expression it examines and extract subexpressions of that structure
 * useful tricks
     * Variadic function syntax: `def apply[A](as: A*): List[A] =`
     * convert to varargs: `as.tail: _*`
     * Any two values x and y can be compared for equality in Scala using the expression x == y
-* Underscore notation for anonymous functions
-    * You can think of the underscore as a “blank” in the expression that needs
-      to be “filled in.”
-    * Multiple underscores mean multiple pa-
-      rameters, not reuse of a single parameter repeatedly. The first underscore
-      represents the first parameter, the second underscore the second parameter,
-      the third underscore the third parameter, and so on
-    * The anonymous function (x,y) => x + y can be written as _ + _ in situations where
-      the types of x and y could be inferred by Scala
-    * _ + _ - (x,y) => x + y
-    * _.head - xs => xs.head
-    * _ drop _ - (xs,n) => xs.drop(n)
+## underscore notation for anonymous functions
+* you can think of the underscore as a "blank" in the expression that needs to be "filled in"
+* multiple underscores mean multiple parameters, not reuse of a single parameter repeatedly
+* `(x,y) => x + y` can be written as `_ + _` in situations where the types of `x` and `y` could 
+be inferred
+* examples
+    * `_.head` is `xs => xs.head`
+    * `_ drop _` is `(xs,n) => xs.drop(n)`
     
 ## pattern matching
+* Pattern matching works a bit like a fancy switch statement that may descend into
+  the structure of the expression it examines and extract subexpressions of that structure
 * In general a match expression
   lets you select using arbitrary patterns
 * twin constructs: case classes and pattern matching
@@ -123,7 +118,8 @@ a large amount of boilerplate
 * if you match against case classes that inherit from a sealed class, the compiler will 
 flag missing combinations of patterns with a warning message
 
-# classes, fields, objects
+# basics
+## class
 * public is default access level
 * defined a ChecksumAccumulator class and gave it a var field named sum :
   class ChecksumAccumulator {
@@ -137,91 +133,81 @@ flag missing combinations of patterns with a warning message
 * `class MyClass(val index: Int, val name: String)`
     * readonly fields with getters
     * `println(p.firstName + " " + p.lastName)`
+* main/primary constructor is defined when you define your class
+    ```
+    class Person(var firstName: String, var lastName: String) {
+    
+        println("the constructor begins")
+    
+        // some methods
+        def printHome(): Unit = println(s"HOME = $HOME")    
+        def printFullName(): Unit = println(this) 
+    
+        // A secondary constructor.
+          def this(firstName: String) {
+            this(firstName, "", 0);
+          }
+      
+        printHome()
+        printFullName()
+        println("you've reached the end of the constructor")
+    }
+    ```
+## singleton
 * classes in Scala cannot have static members
-    * instead - singleton objects
-    * singleton object with the same name as a class - it is called class’s companion object
-        * class is called the companion class of the singleton object
-    * class and its companion object can access each other’s private members
-    * for Java programmers - think of singleton objects as the home for static methods 
-    * A singleton object is more than a holder of static methods, however. It is a
-      first-class object. You can think of a singleton object’s name, therefore, as a
-      “name tag” attached to the object
-    * One difference between classes and singleton objects is that singleton
-      objects cannot take parameters, whereas classes can
-    * have the same initialization semantics as Java statics
-    * singleton object is initialized the first time some code accesses it
-```
-class Person(var firstName: String, var lastName: String) {
-
-    println("the constructor begins")
-
-    // 'public' access by default
-    var age = 0
-
-    // some class fields
-    private val HOME = System.getProperty("user.home")
-
-    // some methods
-    override def toString(): String = s"$firstName $lastName is $age years old"
-
-    def printHome(): Unit = println(s"HOME = $HOME")    
-    def printFullName(): Unit = println(this) 
-
-      /**
-       * A secondary constructor.
-       */
-      def this(firstName: String) {
-        this(firstName, "", 0);
-        println("\nNo last name or age given.")
-      }
-  
-      printHome()
-      printFullName()
-      println("you've reached the end of the constructor")
-  
-  }
-  ```
-* The main/primary constructor is defined when you define your class
+* instead - singleton objects
+* singleton object with the same name as a class - it is called class’s companion object
+    * class is called the companion class of the singleton object
+* class and its companion object can access each other’s private members
+* for Java programmers - think of singleton objects as the home for static methods 
+* A singleton object is more than a holder of static methods, however. It is a
+  first-class object. You can think of a singleton object’s name, therefore, as a
+  “name tag” attached to the object
+* One difference between classes and singleton objects is that singleton
+  objects cannot take parameters, whereas classes can
+* have the same initialization semantics as Java statics
+* singleton object is initialized the first time some code accesses it
 # list
+* immutable data structure
+    * how we modify them?
+        * for example: when we add an element to the front of an existing list `xs`
+        we return a new list `(1,xs)`
+        * we don’t need to actually copy xs - we can just reuse it
+            * it is called data sharing
+* functional data structures are persistent - existing references are never changed by 
+operations on the data structure
 ```
 sealed trait List[+A] // data type
 case object Nil extends List[Nothing] // represents the empty lis
 case class Cons[+A](head: A, tail: List[A]) extends List[A] // represents nonempty lists
 ```
-
-* immutable data structure
-    * When data is immutable, how do we write functions that, for example, add or remove
-      elements from a list? The answer is simple. When we add an element 1 to the front of
-      an existing list, say xs , we return a new list, in this case Cons(1,xs) . Since lists are
-      immutable, we don’t need to actually copy xs ; we can just reuse it. This is called data
-      sharing.
-    * We say that functional data structures are
-      persistent, meaning that existing references are never changed by operations on the
-      data structure
-
-* Cons - (traditionally short for construct)
-    * A nonempty list consists of an initial element, head ,
-      followed by a List (possibly empty) of remaining elements (the tail )
+* `Cons`
+    * traditionally short for construct
+    * nonempty list consists of an initial element - head followed by a List (tail) - possibly 
+    empty 
 * foldRight
+    ```
     def foldRight[A,B](as: List[A], z: B)(f: (A, B) => B): B =
         as match {
         case Nil => z
         case Cons(x, xs) => f(x, foldRight(xs, z)(f))
     }
-    * One way of describing what foldRight does is that it replaces the constructors of the list, Nil 
-    and Cons , with z and f , illustrated here:
-        * Cons(1, Cons(2, Nil)) -> f (1, f (2, z ))
     ```
-    Cons(1, Cons(2, Cons(3, Nil))).foldRight(0)(_ + _)
-    1 + Cons(2, Cons(3, Nil)).foldRight(0)(_ + _)
-    1 + (2 + Cons(3, Nil).foldRight(0)(_ + _)
-    1 + (2 + (3 + Nil.foldRight(0)(_ + _)
-    1 + (2 + (3 + (0)))
-    6
-    ```
-* LISTS IN THE STANDARD LIBRARY
-    * 1 :: 2 :: Nil
-    * pattern matching case h :: t
+    * it replaces Nil and Cons with z and f
+        * `Cons(1, Cons(2, Nil)) -> f (1, f (2, z ))`
+    * example
+        ```
+        Cons(1, Cons(2, Cons(3, Nil))).foldRight(0)(_ + _)
+        1 + Cons(2, Cons(3, Nil)).foldRight(0)(_ + _)
+        1 + (2 + Cons(3, Nil).foldRight(0)(_ + _)
+        1 + (2 + (3 + Nil.foldRight(0)(_ + _)
+        1 + (2 + (3 + (0)))
+        6
+        ```
+## standard library
+* `1 :: 2 :: Nil` - `List(1,2)`
+* pattern matching
+    * `case h :: t` - split into head and tail
 
 # stream
 * To say a function is non-strict just means
