@@ -8,55 +8,55 @@
 1. https://booksites.artima.com/programming_in_scala_4ed
 * https://medium.com/@wiemzin/variances-in-scala-9c7d17af9dc4
 * https://docs.scala-lang.org/overviews/scala-book/classes.html
+* https://dzone.com/articles/scala-generics-part-2-covariance-and-contravariance-in-generics
 
 # introduction to scala
 ## variance
-* https://github.com/mtumilowicz/java11-covariance-contravariance-invariance
-* https://dzone.com/articles/scala-generics-part-2-covariance-and-contravariance-in-generics
-* covariant: `trait Queue[+T] { ... }`
-    ```
-    class Queue[+T] {
-    def enqueue(x: T) =
-        ...
-    }
-    
-    error: covariant type T occurs in contravariant position in type T of value x
-    def enqueue(x: T) =
-    ```
-* nonvariant: `trait Queue[T] { ... }`
-* contravariant: `trait Queue[-T] { ... }`
-* The + and - symbols you can place next to type parameters are called variance annotations
-* To verify correctness of variance annotations, the Scala compiler clas-
-  sifies all positions in a class or trait body as positive, negative or neutral.
-  A “position” is any location in the class or trait (but from now on we’ll just
-  write “class”) body where a type parameter may be used
-    * For example, every
-      method value parameter is a position because a method value parameter has
-      a type
-* Type parameters annotated with + may only be used in positive positions,
-  while type parameters annotated with - may only be used in negative po-
-  sitions
-* A type parameter with no variance annotation may be used in any
-  position, and is, therefore, the only kind of type parameter that can be used
-  in neutral positions of the class body
-* Once the classifications are computed, the compiler checks that each type
-  parameter is only used in positions that are classified appropriately
-* To classify the positions, the compiler starts from the declaration of a
-  type parameter and then moves inward through deeper nesting levels. Po-
-  sitions at the top level of the declaring class are classified as positive. By
-  default, positions at deeper nesting levels are classified the same as that at
-  enclosing levels, but there are a handful of exceptions where the classifica-
-  tion changes. Method value parameter positions are classified to the flipped
-  classification relative to positions outside the method, where the flip of a pos-
-  itive classification is negative, the flip of a negative classification is positive,
-  and the flip of a neutral classification is still neutral.
-* function variance: val x1: Int => CharSequence = (x: AnyVal) => x.toString
+* please refer: https://github.com/mtumilowicz/java11-covariance-contravariance-invariance
+* variance annotations: `+` and `-` symbols you can place next to type parameters
+    * covariant: `trait Queue[+T] { ... }`
+    * nonvariant: `trait Queue[T] { ... }`
+    * contravariant: `trait Queue[-T] { ... }`
+* to verify correctness Scala compiler classifies all positions in a class or trait body 
+as positive, negative or neutral
+    * "position" is any location in the class or trait where a type parameter may be used
+    * for example, every method value parameter
+    * type parameters annotated with + may only be used in positive positions
+    * type parameters annotated with - may only be used in negative positions
+    * type parameter with no variance annotation may be used in any position
+        * the only kind of type parameter that can be used in neutral positions of the class body
+    * compiler checks that each type parameter is only used in positions that are classified 
+    appropriately
+* examples
+    * covariant position
+        ```
+        class Pets[+A](val pets: ...) {
+          def add(newPet: A): ...
+        }
+      
+        error: covariant type A occurs in contravariant position in type A of value newPet
+        ```
+        why?
+        ```
+        val pets: Pets[Animal] = Pets[Cat](List(Cat)) // it is actually a Pets[Cat]
+        pets.add(Dog) // accepts Animal or any subtype of Animal
+        ```
+    * contravariant position
+        ```
+        class Pets[-A](val pet:A) // contravariant type A occurs in covariant position in type => A of value pet
+        ```
+        why?
+        ```
+        Pets[Cat] = Pets[Animal](new Animal)
+        pets.pet.meow() // pets.pet is not Cat — it is an Animal
+        ```
+    * function `S => T` is contravariant in the function argument and covariant in the result type
+        * `val x1: Int => CharSequence = (x: AnyVal) => x.toString`
 
+## varargs
+* Variadic function syntax: `def apply[A](as: A*): List[A] = ...`
+* convert to varargs: `as.tail: _*`
 
-* useful tricks
-    * Variadic function syntax: `def apply[A](as: A*): List[A] = ...`
-    * convert to varargs: `as.tail: _*`
-    * Any two values x and y can be compared for equality in Scala using the expression x == y
 ## underscore notation for anonymous functions
 * you can think of the underscore as a "blank" in the expression that needs to be "filled in"
 * multiple underscores mean multiple parameters, not reuse of a single parameter repeatedly
@@ -73,6 +73,7 @@ be inferred
 * selector match { alternatives }
     * an arrow symbol => separates the pattern from the expressions
     * a constant pattern matches values that are equal to the constant with respect to ==
+        * Any two values x and y can be compared for equality in Scala using the expression x == y
     * a variable pattern like e matches every value
         * variable then refers to that value in the right hand side of the case clause
     * The wildcard pattern ( _ ) also matches every value, but it does not introduce a variable 
