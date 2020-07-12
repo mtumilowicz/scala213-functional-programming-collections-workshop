@@ -54,7 +54,13 @@ as positive, negative or neutral
         * `val x1: Int => CharSequence = (x: AnyVal) => x.toString`
 
 ## varargs
-* Variadic function syntax: `def apply[A](as: A*): List[A] = ...`
+* variadic function syntax: `def apply[A](as: A*): List[A] = ...`
+    * `apply(Array(1,2,3))`
+    * `apply(1,2,3)`
+    * any application of an object to some arguments in parentheses will be transformed to an `apply` 
+    method call
+        * `f(x)` -> `f.apply(x)`
+        * digression: `x(0) = "Hello"` -> `x.update(0, "Hello")`
 * convert to varargs: `as.tail: _*`
 
 ## underscore notation for anonymous functions
