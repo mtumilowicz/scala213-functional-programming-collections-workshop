@@ -13,6 +13,8 @@
 # introduction to scala
 * default parameters
 * implicit
+* argument type inference
+* why foldRight cannot be tailrec
 ## class
 * public is default access level
 * defined class and gave it a var field
@@ -263,7 +265,7 @@ case class Cons[+A](head: A, tail: List[A]) extends List[A] // represents nonemp
         6
         ```
 ## standard library
-* `1 :: 2 :: Nil` - `List(1,2)`
+*  `1 :: 2 :: Nil` = `1 :: 2` = `List(1,2)`
 * pattern matching
     * `case h :: t` - split into head and tail
 
