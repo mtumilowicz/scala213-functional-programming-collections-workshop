@@ -264,12 +264,12 @@ case class Cons[+A](head: A, tail: List[A]) extends List[A] // represents nonemp
         1 + (2 + (3 + (0)))
         6
         ```
-## standard library
-*  `1 :: 2 :: Nil` = `1 :: 2` = `List(1,2)`
-* pattern matching
-    * `case h :: t` - split into head and tail
+* standard library
+    *  `1 :: 2 :: Nil` = `1 :: 2` = `List(1,2)`
+    * pattern matching
+        * `case h :: t` - split into head and tail
 
-# stream
+## stream
 ```
 sealed trait Stream[+A]
 case object Empty extends Stream[Nothing]
@@ -327,7 +327,7 @@ object Stream {
         StreamFp.cons(a, constant(a))
     }
     ```
-## standard library
+### standard library
 * `LazyList`
     ```
     list match {
@@ -335,7 +335,7 @@ object Stream {
       case h #:: t => h
     }
     ```
-# trees
+## trees
 ```
 sealed trait Tree[+A]
 case object Empty extends Tree[Nothing]
