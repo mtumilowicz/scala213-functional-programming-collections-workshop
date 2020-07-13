@@ -11,6 +11,56 @@
 * https://dzone.com/articles/scala-generics-part-2-covariance-and-contravariance-in-generics
 
 # introduction to scala
+## class
+* public is default access level
+* defined class and gave it a var field
+    ```
+    class ChecksumAccumulator {
+        private var sum = 0
+    }
+    ```
+* `class MyClass(index: Int, name: String)`
+    * compiler will produce a class
+        * two private instance variables
+        * two args constructor
+* `class MyClass(val index: Int, val name: String)`
+    * readonly fields with getters
+        * if `var` instead of `val` - also setters
+    * `println(p.firstName + " " + p.lastName)`
+* main/primary constructor is defined when you define your class
+    ```
+    class Person(var firstName: String, var lastName: String) {
+    
+        println("the constructor begins")
+    
+        // some methods
+        def printHome(): Unit = println(s"HOME = $HOME") // processed string literal with s string interpolator
+        def fullName(): String = {
+            firstName + " " + lastName // no explicit return statement = return last computed value
+        }
+    
+        // secondary constructor
+        def this(firstName: String) {
+          this(firstName, "", 0);
+        }
+      
+        printHome()
+        println("you've reached the end of the constructor")
+    }
+    ```
+  
+## singleton
+* classes in Scala cannot have static members
+* instead - singleton objects
+    * for Java programmers - think of singleton objects as the home for static methods
+* singleton object is more than a holder of static methods
+    * it is a first-class object
+* singleton object with the same name as a class - it is called class’s companion object
+    * class is called the companion class of the singleton object
+* class and its companion object can access each other’s private members
+* singleton objects cannot take parameters, whereas classes can
+* singleton object is initialized the first time some code accesses it
+
 ## variance
 * please refer: https://github.com/mtumilowicz/java11-covariance-contravariance-invariance
 * variance annotations: `+` and `-` symbols you can place next to type parameters
@@ -79,7 +129,7 @@ as positive, negative or neutral
     case class Person(name: String, age: Int)
     
     person match {
-        case Person("Michal", 29) => println("Hi Michal!")
+        case Person("Michal", 29) => println("Hi Michi!")
         case Person(name, 65) => println("Hi " + name + ", retired?")
         case Person(name, age) if age > 100 => println("Hi " + name + ", congratulations!")
         case Person(name, _) => println("Hi " + name + ", age is a state of mind!")
@@ -92,114 +142,86 @@ and extract subexpressions of that structure
         * match is an expression in Scala (i.e., it always results in a value)
         * Scala’s alternative expressions never "fall through" into the next case
         * if none of the patterns match, an exception named `MatchError` is thrown
-* lets you select using arbitrary patterns
 
 ## case classes
-* twin constructs: case classes and pattern matching
-* case classes are Scala’s way to allow pattern matching on objects without requiring 
-a large amount of boilerplate
-* case modifier
+* example
     ```
     abstract class Animal
     case class Cat(parameters list) extends Animal
     case class Dog() extends Animal
     ```
-    * classes with such a modifier are called case classes
-    * using the modifier makes the Scala compiler add some syntactic conveniences 
-    to your class
-        * adds a factory method with the name of the class
-        * construct an object: `Cat("x")` vs `new Cat("x")`
-        * all arguments in the parameter list get a val prefix, so they are maintained 
-        as fields
-        * implementations of methods toString, hashCode and equals
-        * copy method for making modified copies
-            * The method works by using named and default parameters
-            * You specify the changes you’d like to make by using named parameters. For any
-            parameter you don’t specify, the value from the old object is used
-    * the biggest advantage of case classes is that they support pattern matching
+* classes with case modifier a modifier are called case classes
+* Scala compiler adds some syntactic conveniences to your class
+    * adds a factory method with the name of the class
+    * construct an object: `Cat("x")` vs `new Cat("x")`
+    * all arguments in the parameter list get a val prefix, so they are maintained 
+    as fields
+    * implementations of methods toString, hashCode and equals
+    * copy method for making modified copies
+        * The method works by using named and default parameters
+        * You specify the changes you’d like to make by using named parameters. For any
+        parameter you don’t specify, the value from the old object is used
+* the biggest advantage of case classes is that they support pattern matching
+    * twin constructs: case classes and pattern matching
+* case classes are Scala’s way to allow pattern matching without a boilerplate
 
 ## sealed classes
+* cannot have any new subclasses added except the ones in the same file
+* if you match against case classes that inherit from a sealed class, the compiler will 
+flag missing combinations of patterns with a warning message
 * Scala compiler help in detecting missing combinations of patterns in a match expression
     * compiler needs to be able to tell which are the possible cases
     * in general, this is impossible because new case classes can be defined at any time 
     and in arbitrary compilation units
-* alternative is to make the superclass of your case classes sealed
-    * sealed class cannot have any new subclasses added except the ones in the same file
-* if you match against case classes that inherit from a sealed class, the compiler will 
-flag missing combinations of patterns with a warning message
 
-# basics
-## class
-* public is default access level
-* defined a ChecksumAccumulator class and gave it a var field named sum :
-  class ChecksumAccumulator {
-    private var sum = 0
-  }
-* in the absence of any explicit return statement - method returns the last computed value
-* `class MyClass(index: Int, name: String)`
-    * compiler will produce a class
-        * two private instance variables
-        * two args constructor
-* `class MyClass(val index: Int, val name: String)`
-    * readonly fields with getters
-    * `println(p.firstName + " " + p.lastName)`
-* main/primary constructor is defined when you define your class
-    ```
-    class Person(var firstName: String, var lastName: String) {
-    
-        println("the constructor begins")
-    
-        // some methods
-        def printHome(): Unit = println(s"HOME = $HOME")    
-        def printFullName(): Unit = println(this) 
-    
-        // A secondary constructor.
-          def this(firstName: String) {
-            this(firstName, "", 0);
-          }
-      
-        printHome()
-        printFullName()
-        println("you've reached the end of the constructor")
-    }
-    ```
-## singleton
-* classes in Scala cannot have static members
-* instead - singleton objects
-* singleton object with the same name as a class - it is called class’s companion object
-    * class is called the companion class of the singleton object
-* class and its companion object can access each other’s private members
-* for Java programmers - think of singleton objects as the home for static methods 
-* A singleton object is more than a holder of static methods, however. It is a
-  first-class object. You can think of a singleton object’s name, therefore, as a
-  “name tag” attached to the object
-* One difference between classes and singleton objects is that singleton
-  objects cannot take parameters, whereas classes can
-* have the same initialization semantics as Java statics
-* singleton object is initialized the first time some code accesses it
 ## non-strictness
-* To say a function is non-strict just means that the function may choose not to evaluate its arguments
-* Boolean functions && and || are non-strict
+* non-strict function - function may choose not to evaluate its arguments
+    * formal definition
+        * we say that the expression doesn’t terminate or that it evaluates to bottom if the 
+        evaluation of an expression runs forever or throws an error instead of returning
+        a definite value
+        * function f is strict if the expression f(x) evaluates to bottom for all x that
+        evaluate to bottom
+* example
+    * boolean functions && and || are non-strict
 * if you invoke `standard_method(sys.error("failure"))` you’ll get an exception - `sys.error("failure")` 
 will be evaluated before entering the body of the method
-* The arguments we’d like to pass unevaluated have an arrow => immediately before
-  their type. In the body of the function, we don’t need to do anything special to evalu-
-  ate an argument annotated with => . We just reference the identifier as usual
-  * Nor do
-    we have to do anything special to call this function. We just use the normal function
-    call syntax, and Scala takes care of wrapping the expression in a thunk for us
+* example
+    ```
+    def f(x: => Int): Unit = {
+        println(x + 1) // target type, better than trick with supplier
+    }
+  
+    f(1) // prints 2
+    ```
+* arguments we’d like to pass unevaluated have an arrow `=>` immediately before their type
+    * we don’t need to do anything special to evaluate an argument annotated with `=>`
+    * just reference the identifier as usual
+    * we don't need to do anything special to call this function
+    * just use the normal function call syntax
+        * Scala takes care of wrapping the expression in a thunk for us
 * Scala won’t (by default) cache the result of evaluating an argument
+* we say that a non-strict function in Scala takes its arguments by name rather than by value
+
 ## lazy evaluation
-* Adding the lazy keyword to a val declaration will cause Scala to delay evaluation of
-  the right-hand side of that lazy val declaration until it’s first referenced. It will also
-  cache the result so that subsequent references to it don’t trigger repeated evaluation
-* Formal definition of strictness
-  * If the evaluation of an expression runs forever or throws an error instead of returning
-  a definite value, we say that the expression doesn’t terminate, or that it evaluates to
-  bottom. A function f is strict if the expression f(x) evaluates to bottom for all x that
-  evaluate to bottom.
-* As a final bit of terminology, we say that a non-strict function in Scala takes its argu-
-  ments by name rather than by value
+* example
+    ```
+    def f(x: => Int): Unit = {
+      println("evaluating f")
+      println(x + 1)
+    }
+
+    lazy val x = {
+      println("evaluating x")
+      1
+    }
+
+    f(x) // evaluating f evaluating x 2
+    f(x) // evaluating f 2
+    ```
+* lazy val
+    * delay evaluation of the right-hand side until it’s first referenced
+    * cache the result
 * lazy val initialization scheme uses double-checked locking to initialize the lazy val only once
 
 # list
