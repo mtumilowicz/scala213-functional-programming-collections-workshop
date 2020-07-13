@@ -228,6 +228,26 @@ will be evaluated before entering the body of the method
     * cache the result
 * lazy val initialization scheme uses double-checked locking to initialize the lazy val only once
 
+## implicit class
+* major use of implicit conversions is to simulate adding new syntax
+* example
+    * `case class Rectangle(width: Int, height: Int)`
+        ```
+        implicit class RectangleMaker(width: Int) {
+            def x(height: Int) = Rectangle(width, height)
+            implicit def RectangleMaker(width: Int) = new RectangleMaker(width)
+        }
+        
+        val myRectangle = 3 x 4
+        ```
+        * since type Int has no method named x - the compiler will look for an implicit conversion 
+        from Int to something that does and find RectangleMaker
+        * compiler inserts a call to this conversion
+    * `Map(1 -> "one", 2 -> "two", 3 -> "three")`
+        * `->` is not syntax - is a method of the class `ArrowAssoc`
+            * class defined inside the standard Scala preamble `scala.Predef`
+            * preamble also defines an implicit conversion from `Any` to `ArrowAssoc`
+            
 # structures
 * immutable data structure
     * how we modify them?
