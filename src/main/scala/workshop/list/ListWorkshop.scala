@@ -31,105 +31,75 @@ sealed trait ListWorkshop[+A] {
   }
 
   def removeLast(): ListWorkshop[A] = {
-    @scala.annotation.tailrec
-    def loop(prev: ListWorkshop[A], next: ListWorkshop[A]): ListWorkshop[A] = {
-      next match {
-        case NilWorkshop => prev
-        case ConsWorkshop(_, NilWorkshop) => prev
-        case ConsWorkshop(head, tail) => loop(ConsWorkshop(head, prev), tail)
-      }
-    }
-
-    loop(NilWorkshop, this).reverse()
+    // hint: tailrec with loop(prev: ListWorkshop[A], next: ListWorkshop[A])
+    // hint: pattern matching: nil, (_, nil), (head, tail)
+    // hint: reverse
+    null
   }
 
   def exists(p: A => Boolean): Boolean =
-    this match {
-      case NilWorkshop => false
-      case ConsWorkshop(head, tail) => p(head) || tail.exists(p) // Because the || operator evaluates its second argument lazily
-    }
+  // hint: pattern matching with ||
+    false
 
+  // (1, 2, 3) zipWith (a, b, c) (x, y) => x + y = (1a, 2b, 3c)
   def zipWith[B, C](second: ListWorkshop[B])(f: ((A, B)) => C): ListWorkshop[C] = {
-    @scala.annotation.tailrec
-    def zip(first: ListWorkshop[A], second: ListWorkshop[B], zipped: ListWorkshop[(A, B)] = ListWorkshop()): ListWorkshop[(A, B)] = {
-      first match {
-        case NilWorkshop => zipped
-        case ConsWorkshop(headF, tailF) => second match {
-          case NilWorkshop => zipped
-          case ConsWorkshop(headS, tailS) => zip(tailF, tailS, ConsWorkshop((headF, headS), zipped))
-        }
-      }
-    }
-
-    zip(this, second).reverse().map(f)
+    // hint: tailrec with zip(first: ListWorkshop[A], second: ListWorkshop[B], zipped: ListWorkshop[(A, B)] = ListWorkshop())
+    // hint: pattern matching on first
+    // hint: inner pattern matching on second
+    // hint: reverse and map
+    null
   }
 
+  // (1, 2, 3) hasSubsequence Nil = true, (2) = true, (2, 3) = true, (1, 3) = false
   def hasSubsequence[B >: A](sequence: ListWorkshop[B]): Boolean = {
-    @scala.annotation.tailrec
-    def listLoop(list: ListWorkshop[A], sequence: ListWorkshop[B] = sequence): Boolean = {
-      sequence match {
-        case NilWorkshop => true
-        case ConsWorkshop(headS, tailS) => list match {
-          case NilWorkshop => false
-          case ConsWorkshop(head, tail) => listLoop(tail, if (head == headS) tailS else sequence)
-        }
-      }
-    }
-
-    listLoop(this)
+    // hint: tailrec with loop(list: ListWorkshop[A], sequence: ListWorkshop[B] = sequence)
+    // hint: pattern matching on sequence
+    // hint: inner pattern matching on list
+    false
   }
 
+  // split at two parts: up to index, starting from index
   def splitAt(index: Int): (ListWorkshop[A], ListWorkshop[A]) = {
-    @scala.annotation.tailrec
-    def loop(current: ListWorkshop[A], split: ListWorkshop[A] = ListWorkshop(), counter: Int = index): (ListWorkshop[A], ListWorkshop[A]) = {
-      if (counter == 0) return (split, current)
-      current match {
-        case ConsWorkshop(head, next) => loop(next, ConsWorkshop(head, split), counter - 1)
-        case NilWorkshop => (split, ListWorkshop())
-      }
-    }
-
-    val (a, b) = loop(this)
-    (a.reverse(), b)
+    // hint: tailrec with loop(current: ListWorkshop[A], split: ListWorkshop[A] = ListWorkshop(), counter: Int = index)
+    // hint: reverse first part
+    null
   }
 
+  // same as foldRight but combines from left side
   def foldLeft[B](z: B)(f: (B, A) => B): B = {
-    @scala.annotation.tailrec
-    def loop(as: ListWorkshop[A], z: B = z): B = {
-      as match {
-        case NilWorkshop => z
-        case ConsWorkshop(head, tail) => loop(tail, f(z, head))
-      }
-    }
-
-    loop(this)
+    // hint: tailrec with loop(as: ListWorkshop[A], z: B = z)
+    // hint: pattern matching
+    null.asInstanceOf
   }
 
   def groupBy[B](f: A => B): Map[B, List[A]] = {
-    def aggregate(map: Map[B, List[A]], a: A): Map[B, List[A]] =
-      map.updatedWith(f(a))(_.map(a :: _))
-
-    foldLeft(Map[B, List[A]]())(aggregate)
+    // hint: define auxiliary function aggregate(map: Map[B, List[A]], a: A)
+    // hint: updatedWith, f, map, a :: _
+    // hint: foldLeft, Map, aggregate
+    null
   }
 
   def length(): Int = {
-    foldLeft(0)((acc, _) => acc + 1)
+    // hint: foldLeft, 0, increment
+    0
   }
 
   def reverse(): ListWorkshop[A] = {
-    foldLeft(ListWorkshop[A]())((reversed, head) => ConsWorkshop(head, reversed))
+    // hint: foldLeft
+    null
   }
 
+  // combine from the right side
   def foldRight[B](z: B)(f: (A, B) => B): B = {
-    this match {
-      case NilWorkshop => z
-      case ConsWorkshop(x, xs) => f(x, xs.foldRight(z)(f))
-    }
+    // hint: pattern matching
+    // hint: f(..., recur call)
+    null.asInstanceOf
   }
 
   // note that foldRight = foldLeft on reversed
   def foldLeftByFoldRight[B](z: B)(f: (B, A) => B): B = {
-    foldRight((b: B) => b)((a, delayFunction) => b => delayFunction(f(b, a)))(z)
+    // hint: foldRight((b: B) => b)((a, delayFunction) => ...)
+    null.asInstanceOf
 
     // 1, 2, 3 - we would like to process element one by one in reverse order
     // d1 = delayFunction(f(b, 1))
@@ -140,24 +110,29 @@ sealed trait ListWorkshop[+A] {
   }
 
   def map[B](f: A => B): ListWorkshop[B] = {
-    foldRight(ListWorkshop[B]())((elem, newList) => ConsWorkshop(f(elem), newList))
+    // hint: foldRight
+    null
   }
 
+  // adds to the end
   def append[B >: A](elem: B): ListWorkshop[B] = {
-    foldRight(ListWorkshop(elem))(ConsWorkshop(_, _))
+    // hint: foldRight
+    null
   }
 
   def concat[B >: A](second: ListWorkshop[B]): ListWorkshop[B] = {
-    foldRight(second)(ConsWorkshop(_, _))
+    // hint: foldRight(second)
+    null
   }
 
   def flatMap[B](f: A => ListWorkshop[B]): ListWorkshop[B] = {
-    import ListWorkshopUtils._
-    this.map(f).flatten()
+    // hint: map, flatten
+    null
   }
 
   def filter(f: A => Boolean): ListWorkshop[A] = {
-    flatMap(a => if (f(a)) ListWorkshop(a) else ListWorkshop())
+    // hint: flatMap
+    null
   }
 }
 
@@ -166,44 +141,47 @@ case object NilWorkshop extends ListWorkshop[Nothing]
 case class ConsWorkshop[+A](head: A, override val tail: ListWorkshop[A]) extends ListWorkshop[A]
 
 object ListWorkshop {
+
   def apply[A](as: A*): ListWorkshop[A] =
-    if (as.isEmpty) NilWorkshop
-    else ConsWorkshop(as.head, apply(as.tail: _*))
+    // hint: as.isEmpty, as.head, as.tail, _*
+    // hint: ConsWorkshop(..., apply(...))
+  null
 
+  // if any is empty -> empty, else Some(list of values)
   def sequence[A](a: List[Option[A]]): Option[List[A]] = {
-
-    def add(pair: (List[A], A)): List[A] = pair._2 :: pair._1
-
-    def merge(elem: Option[A], list: Option[List[A]]): Option[List[A]] =
-      list.zip(elem).map(add)
-
-    a.foldRight(Option(List[A]()))(merge)
+    // hint: define auxiliary function prepend(pair: (List[A], A)): ((2, 3, 4), 1) = (1, 2, 3, 4)
+    // hint: pair._1, pair._2
+    // hint: define auxiliary function merge(elem: Option[A], list: Option[List[A]])
+    // hint: list.zip, map
+    // hint: foldRight
+    null
   }
 
+  // if for any a in list f(a) is empty -> empty, else some(list of values of f)
   def traverse[A, B](a: List[A])(f: A => Option[B]): Option[List[B]] = {
-    @scala.annotation.tailrec
-    def loop(a: List[A], traversed: List[B] = List()): Option[List[B]] = {
-      a match {
-        case ::(head, next) => f(head) match {
-          case Some(get) => loop(next, get :: traversed)
-          case None => None
-        }
-        case Nil => Some(traversed)
-      }
-    }
-
-    loop(a).map(_.reverse)
+    // hint: tailrec with loop(a: List[A], traversed: List[B] = List())
+    // hint: pattern matching on a, ::
+    // hint: pattern matching on f
+    // hint: reverse
+    null
   }
 }
 
 object ListWorkshopUtils {
 
+  // methods for ListWorkshop with numeric type
   implicit class NumericList[A: Numeric](val s: ListWorkshop[A]) {
-    def sum(): A = s.foldLeft(Numeric[A].zero)(Numeric[A].plus)
+
+    def sum(): A =
+      // hint: foldLeft, Numeric[A].zero, Numeric[A].plus
+      null.asInstanceOf
   }
 
+  // methods for ListWorkshop with list type
   implicit class ListOfList[A](val s: ListWorkshop[ListWorkshop[A]]) {
-    def flatten(): ListWorkshop[A] = s.foldLeft(ListWorkshop[A]())((reduced, a) => reduced.concat(a))
+    def flatten(): ListWorkshop[A] =
+      // hint: foldLeft, concat
+      null
   }
 
 }
