@@ -11,6 +11,8 @@
 * https://dzone.com/articles/scala-generics-part-2-covariance-and-contravariance-in-generics
 
 # introduction to scala
+* default parameters
+* implicit
 ## class
 * public is default access level
 * defined class and gave it a var field
