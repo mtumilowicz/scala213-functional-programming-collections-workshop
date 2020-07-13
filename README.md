@@ -224,33 +224,32 @@ will be evaluated before entering the body of the method
     * cache the result
 * lazy val initialization scheme uses double-checked locking to initialize the lazy val only once
 
-# list
+# structures
 * immutable data structure
     * how we modify them?
         * for example: when we add an element to the front of an existing list `xs`
-        we return a new list `(1,xs)`
-        * we don’t need to actually copy xs - we can just reuse it
+        we return `List(new element, xs)`
+        * we don’t need to actually copy `xs` - we can just reuse it
             * it is called data sharing
 * functional data structures are persistent - existing references are never changed by 
 operations on the data structure
+## list
 ```
 sealed trait List[+A] // data type
 case object Nil extends List[Nothing] // represents the empty lis
 case class Cons[+A](head: A, tail: List[A]) extends List[A] // represents nonempty lists
 ```
-* `Cons`
-    * traditionally short for construct
-    * nonempty list consists of an initial element - head followed by a List (tail) - possibly 
-    empty 
-* foldRight
+* `Cons` traditionally short for construct
+    * nonempty list consists of an initial element - head followed by a List (tail) - possibly  empty
+* `foldRight`
     ```
-    def foldRight[A,B](as: List[A], z: B)(f: (A, B) => B): B =
-        as match {
+    def foldRight[A,B](z: B)(f: (A, B) => B): B =
+        this match {
         case Nil => z
         case Cons(x, xs) => f(x, foldRight(xs, z)(f))
     }
     ```
-    * it replaces Nil and Cons with z and f
+    * it replaces `Nil` and `Cons` with `z` and `f`
         * `Cons(1, Cons(2, Nil)) -> f (1, f (2, z ))`
     * example
         ```
@@ -283,50 +282,47 @@ object Stream {
     def apply[A](as: A*): Stream[A] = if (as.isEmpty) empty else cons(as.head, apply(as.tail: _*))
 }
 ```
-* type looks identical to our List type, except that the Cons data constructor takes
-  explicit thunks ( () => A and () => Stream[A] ) instead of regular strict values
-* generator
-```
-def apply[A](as: A*): Stream[A] =
-if (as.isEmpty) empty
-else cons(as.head, apply(as.tail: _*))
-```
-* Again, Scala takes care of wrapping the arguments to cons in thunks, so the as.head
-  and apply(as.tail: _*) expressions won’t be evaluated until we force the Stream .
-* fold right
-```
-def foldRight[B](z: => B)(f: (A, => B) => B): B =
-this match {
-case Cons(h,t) => f(h(), t().foldRight(z)(f))
-case _ => z
-}
-```
-* note how our combining function f is non-strict in its second parameter
-    * If f chooses not to evaluate its second parameter, this terminates the traversal early
-```
-def exists(p: A => Boolean): Boolean =
-foldRight(false)((a, b) => p(a) || b
-```
-* If p(a) returns true , b will never be evaluated and the computation terminates early
-* implementations are incremental—they don’t fully generate their answers. 
-    * It’s not until some other computation looks at the elements of the resulting Stream that the 
-    computation to generate that Stream actually takes place—and then it
-    will do just enough work to generate the requested elements. 
-    * Because of this incremental nature, we can call these functions one after another without 
-    fully instantiating the intermediate results.
-* we can reuse filter to define find , a method to return just the first element that matches 
-if it exists
-    * Even though filter transforms the whole stream, that transformation is done lazily, so find 
-    terminates as soon as a match is found:
+* identical to List, except that the `Cons` takes suppliers (thunks) instead of strict values
+    * thunk is a subroutine used to inject an additional calculation into another subroutine
+* `foldRight`
     ```
-    def find(p: A => Boolean): Option[A] = filter(p).headOption
+    def foldRight[B](z: => B)(f: (A, => B) => B): B =
+        this match {
+            case Cons(h,t) => f(h(), t().foldRight(z)(f))
+            case _ => z
+    }
     ```
-    * Stream.filter tries to find the first matching value and if there is none, it will search forever
+    * combining function is non-strict in its second parameter
+    * if f chooses not to evaluate its second parameter, this terminates the traversal early
+        ```
+        def exists(p: A => Boolean): Boolean = foldRight(false)((a, b) => p(a) || b
+        ```
+* `filter`
+    ```
+    def filter(p: A => Boolean): StreamFp[A] = {
+        foldRight(StreamFp.empty[A])((h, t) =>
+            if (p(h)) StreamFp.cons(h, t) 
+            else t)
+    }
+    ```
+    * tries to find the first matching value and if there is none, it will search forever
         * s.filter(_ => false) will never terminates on infinite stream
+        * Stream from standard library - same problem
         * LazyList - OK
-* The unfold function is an example of what’s sometimes called a corecursive func-
-  tion. Whereas a recursive function consumes data, a corecursive function produces
-  data
+    * we can reuse filter to define find
+        * filter transforms the whole stream, but transformation is done lazily
+        ```
+        def find(p: A => Boolean): Option[A] = filter(p).headOption
+        ```
+* method implementations are incremental — they don’t fully generate their answers
+    * we can call these functions one after another without fully instantiating the intermediate results
+* corecursion
+    * a recursive function consumes data, a corecursive function produces data
+    ```
+    def constant[A](a: A): StreamFp[A] = {
+        StreamFp.cons(a, constant(a))
+    }
+    ```
 ## standard library
 * `LazyList`
     ```
