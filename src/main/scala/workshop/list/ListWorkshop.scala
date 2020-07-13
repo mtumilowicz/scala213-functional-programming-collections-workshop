@@ -4,44 +4,30 @@ import scala.math.Numeric
 
 sealed trait ListWorkshop[+A] {
 
+  // if empty -> empty; otherwise - all apart head
   def tail(): ListWorkshop[A] = {
-    this match {
-      case NilWorkshop => NilWorkshop
-      case ConsWorkshop(_, tail) => tail
-    }
+    // pattern matching
+    null
   }
 
+  // if empty -> empty; otherwise - new list with replaced head
   def replaceHead[B >: A](head: B): ListWorkshop[B] = {
-    this match {
-      case NilWorkshop => NilWorkshop
-      case ConsWorkshop(_, tail) => ConsWorkshop(head, tail)
-    }
+    // pattern matching, hint: use _
+    null
   }
 
+  // skip n first elements, if n >= length -> empty
   def drop(n: Int): ListWorkshop[A] = {
-    @scala.annotation.tailrec
-    def drop(l: ListWorkshop[A], counter: Int = n): ListWorkshop[A] = {
-      if (counter <= 0) l
-      else
-        l match {
-          case NilWorkshop => NilWorkshop
-          case ConsWorkshop(_, tail) => drop(tail, counter - 1)
-        }
-    }
-
-    drop(this)
+    // hint: tailrec with loop(l: ListWorkshop[A], counter: Int = n)
+    // hint: pattern matching with _
+    null
   }
 
+  // skip until true, if list ends before false -> empty
   def dropWhile(f: A => Boolean): ListWorkshop[A] = {
-    @scala.annotation.tailrec
-    def loop(l: ListWorkshop[A]): ListWorkshop[A] = {
-      l match {
-        case ConsWorkshop(head, tail) if f(head) => loop(tail)
-        case _ => l
-      }
-    }
-
-    loop(this)
+    // hint: tailrec with loop(l: ListWorkshop[A])
+    // hint: pattern matching with if
+    null
   }
 
   def removeLast(): ListWorkshop[A] = {
