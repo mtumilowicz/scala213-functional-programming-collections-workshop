@@ -64,34 +64,36 @@ as positive, negative or neutral
 * convert to varargs: `as.tail: _*`
 
 ## underscore notation for anonymous functions
-* you can think of the underscore as a "blank" in the expression that needs to be "filled in"
-* multiple underscores mean multiple parameters, not reuse of a single parameter repeatedly
-* `(x,y) => x + y` can be written as `_ + _` in situations where the types of `x` and `y` could 
-be inferred
 * examples
-    * `_.head` is `xs => xs.head`
-    * `_ drop _` is `(xs,n) => xs.drop(n)`
+    * `var f: List[String] => List[String] = _.tail`
+    * `var f: (List[String], Int) => List[String] = _ drop _`
+    * `var f: (Int, Int) => Int = _ + _`
+    * `List(-11, -10, -5, 0, 5, 10).filter(_ > 0)`
+* compiler must have enough information to infer missing parameter types
+* you can think of the underscore as a "blank" in the expression that needs to be "filled in"
+* multiple underscores mean multiple parameters
     
 ## pattern matching
-* Pattern matching works a bit like a fancy switch statement that may descend into
-  the structure of the expression it examines and extract subexpressions of that structure
-* In general a match expression lets you select using arbitrary patterns
-* selector match { alternatives }
-    * an arrow symbol => separates the pattern from the expressions
-    * a constant pattern matches values that are equal to the constant with respect to ==
-        * Any two values x and y can be compared for equality in Scala using the expression x == y
-    * a variable pattern like e matches every value
-        * variable then refers to that value in the right hand side of the case clause
-    * The wildcard pattern ( _ ) also matches every value, but it does not introduce a variable 
-    name to refer to that value
-        * used as a default, catch-all alternative
-        * can also be used to ignore parts of an object that you do not care about
-    * constructor pattern looks like UnOp("-", e)
-* Match expressions can be seen as a generalization of Java-style switch
+* examples
+    ```
+    case class Person(name: String, age: Int)
+    
+    person match {
+        case Person("Michal", 29) => println("Hi Michal!")
+        case Person(name, 65) => println("Hi " + name + ", retired?")
+        case Person(name, age) if age > 100 => println("Hi " + name + ", congratulations!")
+        case Person(name, _) => println("Hi " + name + ", age is a state of mind!")
+        case _ => println("rest")
+    }
+    ```
+* fancy switch statement that may descend into the structure of the expression it examines 
+and extract subexpressions of that structure
     * there are three differences to keep in mind
         * match is an expression in Scala (i.e., it always results in a value)
         * Scala’s alternative expressions never "fall through" into the next case
-        * if none of the patterns match, an exception named MatchError is thrown
+        * if none of the patterns match, an exception named `MatchError` is thrown
+* lets you select using arbitrary patterns
+
 ## case classes
 * twin constructs: case classes and pattern matching
 * case classes are Scala’s way to allow pattern matching on objects without requiring 
