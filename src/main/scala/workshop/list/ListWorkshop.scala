@@ -126,6 +126,7 @@ sealed trait ListWorkshop[+A] {
   }
 
   def flatMap[B](f: A => ListWorkshop[B]): ListWorkshop[B] = {
+    import ListWorkshopUtils._
     // hint: map, flatten
     null
   }

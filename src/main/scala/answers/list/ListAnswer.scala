@@ -60,7 +60,7 @@ sealed trait ListAnswer[+A] {
   def exists(p: A => Boolean): Boolean =
     this match {
       case NilAnswer => false
-      case ConsAnswer(head, tail) => p(head) || tail.exists(p) // Because the || operator evaluates its second argument lazily
+      case ConsAnswer(head, tail) => p(head) || tail.exists(p)
     }
 
   def zipWith[B, C](second: ListAnswer[B])(f: ((A, B)) => C): ListAnswer[C] = {
@@ -141,16 +141,8 @@ sealed trait ListAnswer[+A] {
     }
   }
 
-  // note that foldRight = foldLeft on reversed
   def foldLeftByFoldRight[B](z: B)(f: (B, A) => B): B = {
     foldRight((b: B) => b)((a, delayFunction) => b => delayFunction(f(b, a)))(z)
-
-    // 1, 2, 3 - we would like to process element one by one in reverse order
-    // d1 = delayFunction(f(b, 1))
-    // d2 = d1(f(b, 2))
-    // d3 = d2(f(b, 3))
-    // d4 = d3(Nil)
-    // d4 = d3(Nil) = d2(f(Nil, 3)) = d1(f(f(Nil, 3)), 2) = delayFunction(f(f(f(Nil, 3)), 2), 1))
   }
 
   def map[B](f: A => B): ListAnswer[B] = {
@@ -180,6 +172,7 @@ case object NilAnswer extends ListAnswer[Nothing]
 case class ConsAnswer[+A](head: A, override val tail: ListAnswer[A]) extends ListAnswer[A]
 
 object ListAnswer {
+
   def apply[A](as: A*): ListAnswer[A] =
     if (as.isEmpty) NilAnswer
     else ConsAnswer(as.head, apply(as.tail: _*))
