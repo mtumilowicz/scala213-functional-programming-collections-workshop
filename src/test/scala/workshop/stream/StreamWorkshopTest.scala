@@ -1,11 +1,14 @@
 package workshop.stream
 
+import org.scalatest.Ignore
+
+@Ignore
 class StreamWorkshopTest extends org.scalatest.FunSuite with org.scalatest.matchers.should.Matchers {
 
   test("toList") {
     val stream = StreamWorkshop(1, 2, 3)
 
-    stream.toList == List(1, 2, 3)
+    stream.toList shouldBe List(1, 2, 3)
     StreamWorkshop.empty.toList shouldBe List()
   }
 
@@ -47,13 +50,13 @@ class StreamWorkshopTest extends org.scalatest.FunSuite with org.scalatest.match
     StreamWorkshop.empty[Int].forAll(_ > 3) shouldBe true
   }
 
-  test("takeWhileFold") {
+  test("takeWhileFoldRight") {
     val stream = StreamWorkshop(1, 2, 3)
 
-    stream.takeWhileFold(_ < -1).toList shouldBe List()
-    stream.takeWhileFold(_ <= 1).toList shouldBe List(1)
-    stream.takeWhileFold(_ <= 3).toList shouldBe List(1, 2, 3)
-    stream.takeWhileFold(_ <= 4).toList shouldBe List(1, 2, 3)
+    stream.takeWhileFoldRight(_ < -1).toList shouldBe List()
+    stream.takeWhileFoldRight(_ <= 1).toList shouldBe List(1)
+    stream.takeWhileFoldRight(_ <= 3).toList shouldBe List(1, 2, 3)
+    stream.takeWhileFoldRight(_ <= 4).toList shouldBe List(1, 2, 3)
     StreamWorkshop.empty[Int].takeWhile(_ < 1).toList shouldBe List()
   }
 
@@ -90,10 +93,10 @@ class StreamWorkshopTest extends org.scalatest.FunSuite with org.scalatest.match
     val stream = StreamWorkshop(1, 2, 3)
     val stream2 = StreamWorkshop(4, 5)
 
-    stream.append(stream2).toList == List(1, 2, 3, 4, 5)
-    stream2.append(stream).toList == List(4, 5, 1, 2, 3)
-    StreamWorkshop.empty.append(stream).toList == List(1, 2, 3)
-    stream.append(StreamWorkshop.empty).toList == List(1, 2, 3)
+    stream.append(stream2).toList shouldBe List(1, 2, 3, 4, 5)
+    stream2.append(stream).toList shouldBe List(4, 5, 1, 2, 3)
+    StreamWorkshop.empty.append(stream).toList shouldBe List(1, 2, 3)
+    stream.append(StreamWorkshop.empty).toList shouldBe List(1, 2, 3)
   }
 
   test("flatMap") {
@@ -101,7 +104,7 @@ class StreamWorkshopTest extends org.scalatest.FunSuite with org.scalatest.match
 
     stream.flatMap(i => StreamWorkshop.cons(i, StreamWorkshop.cons(i, StreamWorkshop.empty))).toList shouldBe List(1, 1, 2, 2, 3, 3)
     stream.flatMap(_ => StreamWorkshop.empty).toList shouldBe List()
-    StreamWorkshop.empty[Int].flatMap(_ => StreamWorkshop.cons(1, StreamWorkshop.empty)).toList == List()
+    StreamWorkshop.empty[Int].flatMap(_ => StreamWorkshop.cons(1, StreamWorkshop.empty)).toList shouldBe List()
   }
 
   test("mapUnfold") {
