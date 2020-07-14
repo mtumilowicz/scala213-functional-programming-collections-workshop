@@ -1,7 +1,9 @@
 package workshop.list
 
+import org.scalatest.Ignore
 import workshop.list.ListWorkshopUtils._
 
+@Ignore
 class ListWorkshopTest extends org.scalatest.FunSuite with org.scalatest.matchers.should.Matchers {
 
   test("tail") {
