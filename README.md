@@ -14,6 +14,7 @@
 * https://github.com/mtumilowicz/java12-fundamentals-tail-recursion-workshop
 
 # introduction to scala
+* AnyVal, AnyRef, Nothing, Nil, null
 ## class
 * public is default access level
 * defined class and gave it a var field
