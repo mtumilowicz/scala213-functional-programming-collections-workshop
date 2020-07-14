@@ -1,5 +1,8 @@
 package workshop.tree
 
+import org.scalatest.Ignore
+
+@Ignore
 class TreeWorkshopTest extends org.scalatest.FunSuite with org.scalatest.matchers.should.Matchers {
 
   test("size") {

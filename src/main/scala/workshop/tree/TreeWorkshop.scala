@@ -6,12 +6,12 @@ sealed trait TreeWorkshop[+A] {
     // hint: tailrec with loop(toVisit: List[TreeAnswer[A]], size: Int = 0)
     // every non-empty node may break up into left and right
     // just increment counter and loop over the list until empty
-    null
+    0
   }
 
   def depth(): Int = {
     // hint: pattern matching with recur, max
-    null
+    0
   }
 
   def map[B](f: A => B): TreeWorkshop[B] = {
@@ -28,7 +28,7 @@ sealed trait TreeWorkshop[+A] {
 
   def sizeFold(): Int = {
     // hint: fold, _
-    null
+    0
   }
 }
 
@@ -55,11 +55,11 @@ object BranchWorkshop {
   def maxElem(tree: TreeWorkshop[Int]): Int = {
     // hint: tailrec with loop(tree: List[TreeWorkshop[Int]], maxElem: Int = Int.MinValue)
     // same approach as in fold
-    null
+    0
   }
 
   def maxElemFold(tree: TreeWorkshop[Int]): Int = {
     // hint: fold, Int.MinValue, max
-    null
+    0
   }
 }

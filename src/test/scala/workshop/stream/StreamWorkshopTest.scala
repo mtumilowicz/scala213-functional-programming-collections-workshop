@@ -1,5 +1,6 @@
 package workshop.stream
 
+import answers.stream.StreamAnswer
 import org.scalatest.Ignore
 
 @Ignore
@@ -112,6 +113,11 @@ class StreamWorkshopTest extends org.scalatest.FunSuite with org.scalatest.match
 
     stream.mapUnfold(_ + 1).toList shouldBe List(2, 3, 4)
     StreamWorkshop.empty[Int].mapUnfold(_ + 1).toList shouldBe List()
+  }
+
+  test("apply(list)") {
+    StreamWorkshop(List(1,2,3)).toList shouldBe List(1,2,3)
+    StreamWorkshop(List()).toList shouldBe List()
   }
 
   test("constant") {

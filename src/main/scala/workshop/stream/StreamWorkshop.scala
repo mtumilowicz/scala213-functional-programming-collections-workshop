@@ -1,5 +1,7 @@
 package workshop.stream
 
+import answers.stream.StreamAnswer
+
 sealed trait StreamWorkshop[+A] {
 
   def toList: List[A] = {
@@ -14,27 +16,40 @@ sealed trait StreamWorkshop[+A] {
     null
   }
 
+  def take(n: Int): StreamWorkshop[A] = {
+    // hint: tailrec with loop(stream: StreamWorkshop[A], list: List[A] = List(), n: Int = n)
+    // hint: StreamWorkshop(loop(this))
+    null
+  }
+
   def foldRight[B](z: => B)(f: (A, => B) => B): B =
     this match {
       case ConsStreamWorkshop(h, t) => f(h(), t().foldRight(z)(f))
       case _ => z
     }
 
+  def takeWhile(p: A => Boolean): StreamWorkshop[A] = {
+    // hint: tailrec with loop(stream: StreamWorkshop[A], taken: List[A] = List())
+    null
+  }
+
+  // takeWhile using foldRight
+  def takeWhileFoldRight(p: A => Boolean): StreamWorkshop[A] = {
+    // hint: foldRight, if ... else empty
+    null
+  }
+
   def exists(p: A => Boolean): Boolean =
   // hint: foldRight, ||
     false
 
-  def take(n: Int): StreamWorkshop[A] = {
-    // hint: auxiliary function: listToStream List[A] => StreamWorkshop[A], foldLeft
-    // hint: tailrec with loop(stream: StreamWorkshop[A], list: List[A] = List(), n: Int = n)
-    // hint: listToStream(loop(this))
+  def headOption: Option[A] = {
+    // hint: foldRight, Option
     null
   }
 
-  def takeWhile(p: A => Boolean): StreamWorkshop[A] = {
-    // hint: auxiliary function
-    // hint: tailrec with loop(stream: StreamWorkshop[A], taken: List[A] = List())
-    // hint: listToStream(loop(this))
+  def filter(p: A => Boolean): StreamWorkshop[A] = {
+    // hint: foldRight, if ... else tail
     null
   }
 
@@ -47,25 +62,9 @@ sealed trait StreamWorkshop[+A] {
     false
   }
 
-  // takeWhile using foldRight
-  def takeWhileFoldRight(p: A => Boolean): StreamWorkshop[A] = {
-    // hint: foldRight, if ... else empty
-    null
-  }
-
-  def headOption: Option[A] = {
-    // hint: foldRight, Option
-    null
-  }
-
   def map[B](f: A => B): StreamWorkshop[B] = {
     // hint: pattern matching + recur
     // or hint: foldRight
-    null
-  }
-
-  def filter(p: A => Boolean): StreamWorkshop[A] = {
-    // hint: foldRight, if ... else tail
     null
   }
 
@@ -122,6 +121,10 @@ object StreamWorkshop {
   def apply[A](as: A*): StreamWorkshop[A] =
     if (as.isEmpty) empty else cons(as.head, apply(as.tail: _*))
 
+  def apply[A](list: List[A]): StreamAnswer[A] =
+    // list.foldLeft
+    null
+
   def constant[A](a: A): StreamWorkshop[A] = {
     // hint: recur
     null
@@ -140,7 +143,7 @@ object StreamWorkshop {
     null
   }
 
-  // general stream-building functio
+  // general stream-building function
   // initial state, and a function for producing next state and the next value in the generated stream
   def unfold[A, S](z: S)(f: S => Option[(A, S)]): StreamWorkshop[A] = {
     // hint: pattern matching on f

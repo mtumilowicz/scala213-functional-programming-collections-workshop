@@ -27,44 +27,55 @@ sealed trait StreamAnswer[+A] {
     loop(this, n)
   }
 
+  def take(n: Int): StreamAnswer[A] = {
+
+    @scala.annotation.tailrec
+    def loop(stream: StreamAnswer[A], list: List[A] = List(), n: Int = n): List[A] = {
+      if (n == 0) return list.reverse
+      stream match {
+        case EmptyStreamAnswer => list.reverse
+        case ConsStreamAnswer(h, t) => loop(t(), h() :: list, n - 1)
+      }
+    }
+
+    StreamAnswer(loop(this))
+  }
+
   def foldRight[B](z: => B)(f: (A, => B) => B): B =
     this match {
       case ConsStreamAnswer(h, t) => f(h(), t().foldRight(z)(f))
       case _ => z
     }
 
-  def exists(p: A => Boolean): Boolean =
-    foldRight(false)((a, b) => p(a) || b)
-
-  def take(n: Int): StreamAnswer[A] = {
-    def listToStream: List[A] => StreamAnswer[A] =
-      _.foldLeft(StreamAnswer.empty[A])((stream, elem) => StreamAnswer.cons(elem, stream))
-
-    @scala.annotation.tailrec
-    def loop(stream: StreamAnswer[A], n: Int, list: List[A] = List()): List[A] = {
-      if (n == 0) return list
-      stream match {
-        case EmptyStreamAnswer => list
-        case ConsStreamAnswer(h, t) => loop(t(), n - 1, h() :: list)
-      }
-    }
-
-    listToStream(loop(this, n))
-  }
-
   def takeWhile(p: A => Boolean): StreamAnswer[A] = {
-    def listToStream: List[A] => StreamAnswer[A] =
-      _.foldLeft(StreamAnswer.empty[A])((stream, elem) => StreamAnswer.cons(elem, stream))
-
     @scala.annotation.tailrec
     def loop(stream: StreamAnswer[A], taken: List[A] = List()): List[A] = {
       stream match {
         case ConsStreamAnswer(h, t) if p(h()) => loop(t(), h() :: taken)
-        case _ => taken
+        case _ => taken.reverse
       }
     }
 
-    listToStream(loop(this))
+    StreamAnswer(loop(this))
+  }
+
+  def takeWhileFoldRight(p: A => Boolean): StreamAnswer[A] = {
+    foldRight(StreamAnswer.empty[A])((newElem, taken) => if (p(newElem))
+      StreamAnswer.cons(newElem, taken)
+    else StreamAnswer.empty)
+  }
+
+  def exists(p: A => Boolean): Boolean =
+    foldRight(false)((a, b) => p(a) || b)
+
+  def headOption: Option[A] = {
+    foldRight(Option.empty[A])((newElem, _) => Some(newElem))
+  }
+
+  def filter(p: A => Boolean): StreamAnswer[A] = {
+    foldRight(StreamAnswer.empty[A])((h, t) =>
+      if (p(h)) StreamAnswer.cons(h, t)
+      else t)
   }
 
   def find(p: A => Boolean): Option[A] =
@@ -74,38 +85,8 @@ sealed trait StreamAnswer[+A] {
     foldRight(true)((newElem, forAll) => p(newElem) && forAll)
   }
 
-  def takeWhileFoldRight(p: A => Boolean): StreamAnswer[A] = {
-    foldRight(StreamAnswer.empty[A])((newElem, taken) => if (p(newElem))
-      StreamAnswer.cons(newElem, taken)
-    else StreamAnswer.empty)
-  }
-
-  def headOption: Option[A] = {
-    foldRight(Option.empty[A])((newElem, _) => Some(newElem))
-  }
-
   def map[B](f: A => B): StreamAnswer[B] = {
-    /*
-    this match {
-      case EmptyStreamFp => EmptyStreamFp
-      case ConsStreamFp(h, t) => StreamFp.cons(f(h()), t().map(f))
-    }
-     */
-
-    /*
-
-    Cons(1, Cons(2, Cons(3, Empty))).map(_ * 2)
-    Cons(1, Cons(2, Cons(3, Empty))).foldRight(Empty)((next, mapped) => StreamFp.cons(next * 2, mapped))
-    StreamFp.cons(2, Cons(2, Cons(3, Empty)).foldRight(Empty)(...))
-
-     */
     foldRight(StreamAnswer.empty[B])((next, mapped) => StreamAnswer.cons(f(next), mapped))
-  }
-
-  def filter(p: A => Boolean): StreamAnswer[A] = {
-    foldRight(StreamAnswer.empty[A])((h, t) =>
-      if (p(h)) StreamAnswer.cons(h, t)
-      else t)
   }
 
   def append[B >: A](s: => StreamAnswer[B]): StreamAnswer[B] = {
@@ -155,6 +136,7 @@ case object EmptyStreamAnswer extends StreamAnswer[Nothing]
 case class ConsStreamAnswer[+A](h: () => A, t: () => StreamAnswer[A]) extends StreamAnswer[A]
 
 object StreamAnswer {
+
   def cons[A](hd: => A, tl: => StreamAnswer[A]): StreamAnswer[A] = {
     lazy val head = hd
     lazy val tail = tl
@@ -165,6 +147,9 @@ object StreamAnswer {
 
   def apply[A](as: A*): StreamAnswer[A] =
     if (as.isEmpty) empty else cons(as.head, apply(as.tail: _*))
+
+  def apply[A](list: List[A]): StreamAnswer[A] =
+    list.foldRight(StreamAnswer.empty[A])((elem, stream) => StreamAnswer.cons(elem, stream))
 
   def constant[A](a: A): StreamAnswer[A] = {
     StreamAnswer.cons(a, constant(a))
@@ -193,5 +178,4 @@ object StreamAnswer {
   def fibUnfold(): StreamAnswer[Int] = {
     unfold((0, 1)) { case (prev, next) => Some(prev, (next, prev + next)) }
   }
-
 }

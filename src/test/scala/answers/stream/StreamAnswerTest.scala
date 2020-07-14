@@ -114,6 +114,11 @@ class StreamAnswerTest extends org.scalatest.FunSuite with org.scalatest.matcher
     StreamAnswer.empty[Int].mapUnfold(_ + 1).toList shouldBe List()
   }
 
+  test("apply(list)") {
+    StreamAnswer(List(1,2,3)).toList shouldBe List(1,2,3)
+    StreamAnswer(List()).toList shouldBe List()
+  }
+
   test("constant") {
     val stream = StreamAnswer.constant(1)
 
