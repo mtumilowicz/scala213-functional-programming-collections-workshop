@@ -1,20 +1,19 @@
-1. fold right cannot be tail recursive
-    * https://stackoverflow.com/questions/4085118/why-foldright-and-reduceright-are-not-tail-recursive
-        * https://stackoverflow.com/a/4086098
-1. https://www.nurkiewicz.com/2012/04/secret-powers-of-foldleft-in-scala.html
-1. https://blog.codecentric.de/en/2016/02/lazy-vals-scala-look-hood/
-1. https://stackoverflow.com/questions/9809313/scalas-lazy-arguments-how-do-they-work
+* https://stackoverflow.com/questions/4085118/why-foldright-and-reduceright-are-not-tail-recursive
+    * https://stackoverflow.com/a/4086098
+* https://www.nurkiewicz.com/2012/04/secret-powers-of-foldleft-in-scala.html
+* https://blog.codecentric.de/en/2016/02/lazy-vals-scala-look-hood/
+* https://stackoverflow.com/questions/9809313/scalas-lazy-arguments-how-do-they-work
     * https://stackoverflow.com/a/9809731
-1. https://booksites.artima.com/programming_in_scala_4ed
+* https://booksites.artima.com/programming_in_scala_4ed
 * https://medium.com/@wiemzin/variances-in-scala-9c7d17af9dc4
 * https://docs.scala-lang.org/overviews/scala-book/classes.html
 * https://dzone.com/articles/scala-generics-part-2-covariance-and-contravariance-in-generics
+* https://www.manning.com/books/functional-programming-in-scala
+
+# preface
+* https://github.com/mtumilowicz/java12-fundamentals-tail-recursion-workshop
 
 # introduction to scala
-* default parameters
-* implicit
-* argument type inference
-* why foldRight cannot be tailrec
 ## class
 * public is default access level
 * defined class and gave it a var field
@@ -247,7 +246,11 @@ will be evaluated before entering the body of the method
         * `->` is not syntax - is a method of the class `ArrowAssoc`
             * class defined inside the standard Scala preamble `scala.Predef`
             * preamble also defines an implicit conversion from `Any` to `ArrowAssoc`
-            
+
+## function arguments
+* default
+* type inference
+      
 # structures
 * immutable data structure
     * how we modify them?
@@ -284,6 +287,27 @@ case class Cons[+A](head: A, tail: List[A]) extends List[A] // represents nonemp
         1 + (2 + (3 + (0)))
         6
         ```
+    * why `foldRight` cannot be tailrec?
+        * `Seq(1, 2, 3).foldLeft(10)(_ - _)` is evaluated as `(((10 - 1) - 2) - 3)`
+        * `Seq(1, 2, 3).foldRight(10)(_ - _)` is evaluated as `(1 - (2 - (3 - 10)))`
+        * imagine pulling the numbers 1, 2, and 3 from a bag and making the calculation pencil-on-paper
+            * `foldRight` case
+                1. pull a number n from the bag
+                1. write "n - ?" on the paper
+                1. if there are numbers left in the bag, pull another n from the bag, else go to 6.
+                1. erase the question mark and replace it with "(n - ?)"
+                1. repeat from 3.
+                1. erase the question mark and replace it with 10
+                1. perform the calculation
+            * `foldLeft` case
+                1. write 10 on the paper
+                1. pull a number n from the bag
+                1. subtract n from the value you have, erase the value and write down the new value instead
+                1. repeat from 2.
+                * regardless of how many numbers there are in the bag, you only need to have one value written 
+                on paper
+                * Tail Call Elimination (TCE) means that instead of building a large structure of recursive 
+                calls on the stack, you can pop off and replace an accumulated value as you go along
 * standard library
     *  `1 :: 2 :: Nil` = `1 :: 2` = `List(1,2)`
     * pattern matching
