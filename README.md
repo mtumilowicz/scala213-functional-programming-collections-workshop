@@ -39,6 +39,9 @@
             * `Byte`, `Short`, `Char`, `Int`, `Long`, `Float`, `Double`, `Boolean`, and `Unit`
                 * `Unit` corresponds roughly to Java’s void type
                 * `Unit` has a single instance value, which is written `()`
+                * Scala stores integers in the same way as Java—as 32-bit words
+                    * uses `java.lang.Integer` whenever an integer needs to be seen as a (Java) object
+                        * for example, when invoking the `toString` method
         * in Java, a `new Integer(1)` does not equal a `new Long(1)`
             *  this discrepancy is corrected in Scala
         * there are implicit conversions between different value class types
