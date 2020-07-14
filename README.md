@@ -1,17 +1,25 @@
-* https://stackoverflow.com/questions/4085118/why-foldright-and-reduceright-are-not-tail-recursive
-    * https://stackoverflow.com/a/4086098
-* https://www.nurkiewicz.com/2012/04/secret-powers-of-foldleft-in-scala.html
-* https://blog.codecentric.de/en/2016/02/lazy-vals-scala-look-hood/
-* https://stackoverflow.com/questions/9809313/scalas-lazy-arguments-how-do-they-work
-    * https://stackoverflow.com/a/9809731
-* https://booksites.artima.com/programming_in_scala_4ed
-* https://medium.com/@wiemzin/variances-in-scala-9c7d17af9dc4
-* https://docs.scala-lang.org/overviews/scala-book/classes.html
-* https://dzone.com/articles/scala-generics-part-2-covariance-and-contravariance-in-generics
-* https://www.manning.com/books/functional-programming-in-scala
+# scala213-functional-programming-collections-workshop
+* references
+    * https://stackoverflow.com/questions/4085118/why-foldright-and-reduceright-are-not-tail-recursive
+        * https://stackoverflow.com/a/4086098
+    * https://www.nurkiewicz.com/2012/04/secret-powers-of-foldleft-in-scala.html
+    * https://blog.codecentric.de/en/2016/02/lazy-vals-scala-look-hood/
+    * https://stackoverflow.com/questions/9809313/scalas-lazy-arguments-how-do-they-work
+        * https://stackoverflow.com/a/9809731
+    * https://booksites.artima.com/programming_in_scala_4ed
+    * https://medium.com/@wiemzin/variances-in-scala-9c7d17af9dc4
+    * https://docs.scala-lang.org/overviews/scala-book/classes.html
+    * https://dzone.com/articles/scala-generics-part-2-covariance-and-contravariance-in-generics
+    * https://www.manning.com/books/functional-programming-in-scala
 
 # preface
-* https://github.com/mtumilowicz/java12-fundamentals-tail-recursion-workshop
+* goals of this workshop:
+    * gentle introduction to Scala syntax and type system
+    * discuss Scala's laziness
+    * implementation of functional data structures: list, stream and tree
+    * practice recursion
+        * please refer beforehand https://github.com/mtumilowicz/java12-fundamentals-tail-recursion-workshop
+* answers with correctly implemented `workshop` tasks are in `answers` package
 
 # introduction to scala
 ## class
