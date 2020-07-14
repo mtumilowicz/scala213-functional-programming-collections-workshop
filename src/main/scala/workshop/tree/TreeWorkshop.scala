@@ -52,20 +52,14 @@ object BranchWorkshop {
     }
   }
 
-  def maxElemFold(tree: TreeWorkshop[Int]): Int = {
-    tree.fold(Int.MinValue)(_ max _)
+  def maxElem(tree: TreeWorkshop[Int]): Int = {
+    // hint: tailrec with loop(tree: List[TreeWorkshop[Int]], maxElem: Int = Int.MinValue)
+    // same approach as in fold
+    null
   }
 
-  def maxElem(tree: TreeWorkshop[Int]): Int = {
-    @scala.annotation.tailrec
-    def loop(tree: List[TreeWorkshop[Int]], maxElem: Int = Int.MinValue): Int = {
-      tree match {
-        case ::(EmptyTreeWorkshop, next) => loop(next, maxElem)
-        case ::(BranchWorkshop(value, left, right), next) => loop(left :: right :: next, value max maxElem)
-        case Nil => maxElem
-      }
-    }
-
-    loop(List(tree))
+  def maxElemFold(tree: TreeWorkshop[Int]): Int = {
+    // hint: fold, Int.MinValue, max
+    null
   }
 }
