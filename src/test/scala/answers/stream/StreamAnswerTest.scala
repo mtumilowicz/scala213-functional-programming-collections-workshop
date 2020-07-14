@@ -48,13 +48,13 @@ class StreamAnswerTest extends org.scalatest.FunSuite with org.scalatest.matcher
     StreamAnswer.empty[Int].forAll(_ > 3) shouldBe true
   }
 
-  test("takeWhileFold") {
+  test("takeWhileFoldRight") {
     val stream = StreamAnswer(1, 2, 3)
 
-    stream.takeWhileFold(_ < -1).toList shouldBe List()
-    stream.takeWhileFold(_ <= 1).toList shouldBe List(1)
-    stream.takeWhileFold(_ <= 3).toList shouldBe List(1, 2, 3)
-    stream.takeWhileFold(_ <= 4).toList shouldBe List(1, 2, 3)
+    stream.takeWhileFoldRight(_ < -1).toList shouldBe List()
+    stream.takeWhileFoldRight(_ <= 1).toList shouldBe List(1)
+    stream.takeWhileFoldRight(_ <= 3).toList shouldBe List(1, 2, 3)
+    stream.takeWhileFoldRight(_ <= 4).toList shouldBe List(1, 2, 3)
     StreamAnswer.empty[Int].takeWhile(_ < 1).toList shouldBe List()
   }
 

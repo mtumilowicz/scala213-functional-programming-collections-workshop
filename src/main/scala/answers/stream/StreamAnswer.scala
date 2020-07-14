@@ -74,7 +74,7 @@ sealed trait StreamAnswer[+A] {
     foldRight(true)((newElem, forAll) => p(newElem) && forAll)
   }
 
-  def takeWhileFold(p: A => Boolean): StreamAnswer[A] = {
+  def takeWhileFoldRight(p: A => Boolean): StreamAnswer[A] = {
     foldRight(StreamAnswer.empty[A])((newElem, taken) => if (p(newElem))
       StreamAnswer.cons(newElem, taken)
     else StreamAnswer.empty)
