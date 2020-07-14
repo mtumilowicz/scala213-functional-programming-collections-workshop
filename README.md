@@ -247,9 +247,30 @@ will be evaluated before entering the body of the method
             * class defined inside the standard Scala preamble `scala.Predef`
             * preamble also defines an implicit conversion from `Any` to `ArrowAssoc`
 
-## function arguments
-* default
+##  function parameters
+* default values
+    ```
+    def printTime(out: java.io.PrintStream = Console.out) = 
+        out.println("time = " + System.currentTimeMillis())
+  
+    printTime() // out will be set to its default value of Console.out
+    ```
+    * very handy with auxiliary tailrec functions
+        ```
+        def length2(): Int = {
+          @scala.annotation.tailrec
+          def loop(list: List[A], size: Int = 0): Int = {
+            list match {
+              case Nil => size
+              case _ :: tail => loop(tail, size + 1)
+            }
+          }
+        
+          loop(this)
+        }
+        ```
 * type inference
+    * 
       
 # structures
 * immutable data structure
