@@ -3,47 +3,32 @@ package workshop.tree
 sealed trait TreeWorkshop[+A] {
 
   def size(): Int = {
-    @scala.annotation.tailrec
-    def loop(toVisit: List[TreeWorkshop[A]], size: Int = 0): Int = {
-      toVisit match {
-        case BranchWorkshop(_, left, right) :: tail => loop(left :: right :: tail, size + 1)
-        case EmptyTreeWorkshop :: tail => loop(tail, size)
-        case Nil => size
-      }
-    }
-
-    loop(List(this))
+    // hint: tailrec with loop(toVisit: List[TreeAnswer[A]], size: Int = 0)
+    // every non-empty node may break up into left and right
+    // just increment counter and loop over the list until empty
+    null
   }
 
   def depth(): Int = {
-    this match {
-      case EmptyTreeWorkshop => 0
-      case BranchWorkshop(_, left, right) => 1 + (left.depth() max right.depth())
-    }
+    // hint: pattern matching with recur, max
+    null
   }
 
   def map[B](f: A => B): TreeWorkshop[B] = {
-    this match {
-      case EmptyTreeWorkshop => EmptyTreeWorkshop
-      case BranchWorkshop(value, left, right) => BranchWorkshop(f(value), left.map(f), right.map(f))
-    }
+    // hint: pattern match with recur
+    null
   }
 
+  // many strategies of traversing - pick the easiest one
   def fold[B](z: B)(f: (A, B) => B): B = {
-    @scala.annotation.tailrec
-    def loop(toVisit: List[TreeWorkshop[A]], accumulator: B = z): B = {
-      toVisit match {
-        case ::(EmptyTreeWorkshop, next) => loop(next, accumulator)
-        case ::(BranchWorkshop(value, left, right), next) => loop(left :: right :: next, f(value, accumulator))
-        case Nil => accumulator
-      }
-    }
-
-    loop(List(this))
+    // hint: tailrec with loop(toVisit: List[TreeWorkshop[A]], accumulator: B = z)
+    // same concept as in size()
+    null.asInstanceOf
   }
 
   def sizeFold(): Int = {
-    fold(0)((_, size) => size + 1)
+    // hint: fold, _
+    null
   }
 }
 
