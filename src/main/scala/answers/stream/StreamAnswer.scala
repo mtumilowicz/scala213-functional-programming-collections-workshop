@@ -145,7 +145,6 @@ sealed trait StreamAnswer[+A] {
     } append StreamAnswer.cons(StreamAnswer.empty, StreamAnswer.empty)
   }
 
-  // (1,2,3).scanRight(0)(_ + _) = List(1+2+3+0, 2+3+0, 3+0, 0)
   def scanRight[B](z: B)(f: (A, => B) => B): StreamAnswer[B] = {
     tails.map(_.foldRight(z)(f))
   }
