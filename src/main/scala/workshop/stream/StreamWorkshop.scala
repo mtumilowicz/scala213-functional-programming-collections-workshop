@@ -39,7 +39,7 @@ sealed trait StreamWorkshop[+A] {
   }
 
   def find(p: A => Boolean): Option[A] =
-    // hint: filter, headOption
+  // hint: filter, headOption
     null
 
   def forAll(p: A => Boolean): Boolean = {
@@ -47,6 +47,7 @@ sealed trait StreamWorkshop[+A] {
     false
   }
 
+  // takeWhile using foldRight
   def takeWhileFoldRight(p: A => Boolean): StreamWorkshop[A] = {
     // hint: foldRight, if ... else empty
     null
@@ -74,43 +75,34 @@ sealed trait StreamWorkshop[+A] {
   }
 
   def flatMap[B](f: A => StreamWorkshop[B]): StreamWorkshop[B] = {
-    foldRight(StreamWorkshop.empty[B])((newElem, flat) => f(newElem) append flat)
+    // hint: foldRight, append
+    null
   }
 
+  // map using unfold
   def mapUnfold[B](f: A => B): StreamWorkshop[B] = {
-    StreamWorkshop.unfold(this) {
-      case ConsStreamWorkshop(h, t) => Some((f(h()), t()))
-      case _ => None
-    }
+    // hint: unfold + pattern matching
+    null
   }
 
   def startsWith[B >: A](s: StreamWorkshop[B]): Boolean = {
-    @scala.annotation.tailrec
-    def loop(list: StreamWorkshop[A], sequence: StreamWorkshop[B] = s): Boolean = {
-      sequence match {
-        case EmptyStreamWorkshop => true
-        case ConsStreamWorkshop(headS, tailS) => list match {
-          case EmptyStreamWorkshop => false
-          case ConsStreamWorkshop(head, tail) => if (head() == headS()) loop(tail(), tailS()) else false
-        }
-      }
-    }
-
-    loop(this)
+    // hint: tailrec with loop(list: StreamWorkshop[A], sequence: StreamWorkshop[B] = s)
+    // hint: pattern matching on sequence
+    // hint: inner pattern matching on list
+    false
   }
 
+  // (1, 2, 3, 4).tails = ((1, 2, 3, 4), (2, 3, 4), (3, 4), (4))
   def tails: StreamWorkshop[StreamWorkshop[A]] = {
-    StreamWorkshop.unfold(this) {
-      case EmptyStreamWorkshop => Option.empty
-      case ConsStreamWorkshop(h, t) => Option.apply((ConsStreamWorkshop(h, t), t()))
-    } append StreamWorkshop.cons(StreamWorkshop.empty, StreamWorkshop.empty)
+    // hint: unfold, pattern matching, pair: (stream, tail)
+    // hint: append empty
+    null
   }
 
+  // (1,2,3).scanRight(0)(_ + _) = List(1+2+3+0, 2+3+0, 3+0, 0)
   def scanRight[B](z: B)(f: (A, => B) => B): StreamWorkshop[B] = {
-    foldRight((z, StreamWorkshop.cons(z, StreamWorkshop.empty)))((a, p0) => {
-      val b2 = f(a, p0._1)
-      (b2, StreamWorkshop.cons(b2, p0._2))
-    })._2
+    // hint: tails, foldRight
+    null
   }
 }
 
@@ -131,31 +123,34 @@ object StreamWorkshop {
     if (as.isEmpty) empty else cons(as.head, apply(as.tail: _*))
 
   def constant[A](a: A): StreamWorkshop[A] = {
-    StreamWorkshop.cons(a, constant(a))
+    // hint: recur
+    null
   }
 
+  // 1, 2, 3, 4, ...
   def from(n: Int): StreamWorkshop[Int] = {
-    StreamWorkshop.cons(n, from(n + 1))
+    // hint: recur
+    null
   }
 
+  // stream of fibonacci
   def fibs(): StreamWorkshop[Int] = {
-    def fib(prev: Int, next: Int, stream: => StreamWorkshop[Int] = StreamWorkshop.empty): StreamWorkshop[Int] = {
-      StreamWorkshop.cons(prev, fib(next, prev + next, stream))
-    }
-
-    fib(0, 1)
+    // hint: auxiliary function: fib(prev: Int, next: Int, stream: => StreamWorkshop[Int] = StreamWorkshop.empty)
+    // hint: fib(0, 1)
+    null
   }
 
+  // general stream-building functio
+  // initial state, and a function for producing next state and the next value in the generated stream
   def unfold[A, S](z: S)(f: S => Option[(A, S)]): StreamWorkshop[A] = {
-    f(z) match {
-      case Some((a, s)) => StreamWorkshop.cons(a, unfold(s)(f))
-      case None => EmptyStreamWorkshop
-    }
-
+    // hint: pattern matching on f
+    // hint: recur
+    null
   }
 
   def fibUnfold(): StreamWorkshop[Int] = {
-    unfold((0, 1)) { case (prev, next) => Some(prev, (next, prev + next)) }
+    // hint: unfold
+    null
   }
 
 }
