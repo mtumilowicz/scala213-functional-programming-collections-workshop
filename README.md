@@ -270,7 +270,27 @@ will be evaluated before entering the body of the method
         }
         ```
 * type inference
-    * 
+    * is flow based
+        ```
+        def flow[A](list: List[A], f: A => A): List[A] = {
+            list.map(f)
+        }
+      
+        flow(List(1), _ + 1) // error: missing parameter type for expanded function
+        flow(List(1), x => x + 1) // error: missing parameter type
+        flow(List(1), (x: Int) => x + 1) // OK
+        ```
+        ```
+        def flow[A](list: List[A])(f: A => A): List[A] = { // curried
+            list.map(f)
+        }
+      
+        flow(List(1))(x => x + 1) // OK
+        flow(List(1))(_ + 1) // OK
+        ```
+    * when designing a polymorphic method that takes some non-function argu-
+      ments and a function argument, place the function argument last in a curried
+      parameter list on its own
       
 # structures
 * immutable data structure
