@@ -36,6 +36,7 @@ class StreamAnswerTest extends org.scalatest.FunSuite with org.scalatest.matcher
     stream.takeWhile(_ <= 1).toList shouldBe List(1)
     stream.takeWhile(_ <= 3).toList shouldBe List(1, 2, 3)
     stream.takeWhile(_ <= 4).toList shouldBe List(1, 2, 3)
+    StreamAnswer(1, 2, 3, 4, 1, 2).takeWhile(_ <= 2).toList shouldBe List(1, 2)
     StreamAnswer.empty[Int].takeWhile(_ < 1).toList shouldBe List()
   }
 

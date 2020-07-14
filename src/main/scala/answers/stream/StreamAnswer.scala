@@ -57,15 +57,15 @@ sealed trait StreamAnswer[+A] {
       _.foldLeft(StreamAnswer.empty[A])((stream, elem) => StreamAnswer.cons(elem, stream))
 
     @scala.annotation.tailrec
-    def loop(stream: StreamAnswer[A], taken: List[A] = List()): StreamAnswer[A] = {
+    def loop(stream: StreamAnswer[A], taken: List[A] = List()): List[A] = {
       stream match {
-        case EmptyStreamAnswer => listToStream(taken)
+        case EmptyStreamAnswer => taken
         case ConsStreamAnswer(h, t) if p(h()) => loop(t(), h() :: taken)
-        case ConsStreamAnswer(h, t) if !p(h()) => loop(t(), taken)
+        case ConsStreamAnswer(h, t) if !p(h()) => taken
       }
     }
 
-    loop(this)
+    listToStream(loop(this))
   }
 
   def find(p: A => Boolean): Option[A] =
