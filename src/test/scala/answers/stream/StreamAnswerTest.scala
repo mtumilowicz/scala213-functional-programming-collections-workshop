@@ -5,7 +5,7 @@ class StreamAnswerTest extends org.scalatest.FunSuite with org.scalatest.matcher
   test("toList") {
     val stream = StreamAnswer(1, 2, 3)
 
-    stream.toList == List(1, 2, 3)
+    stream.toList shouldBe List(1, 2, 3)
     StreamAnswer.empty.toList shouldBe List()
   }
 
@@ -91,10 +91,10 @@ class StreamAnswerTest extends org.scalatest.FunSuite with org.scalatest.matcher
     val stream = StreamAnswer(1, 2, 3)
     val stream2 = StreamAnswer(4, 5)
 
-    stream.append(stream2).toList == List(1, 2, 3, 4, 5)
-    stream2.append(stream).toList == List(4, 5, 1, 2, 3)
-    StreamAnswer.empty.append(stream).toList == List(1, 2, 3)
-    stream.append(StreamAnswer.empty).toList == List(1, 2, 3)
+    stream.append(stream2).toList shouldBe List(1, 2, 3, 4, 5)
+    stream2.append(stream).toList shouldBe List(4, 5, 1, 2, 3)
+    StreamAnswer.empty.append(stream).toList shouldBe List(1, 2, 3)
+    stream.append(StreamAnswer.empty).toList shouldBe List(1, 2, 3)
     StreamAnswer.constant(1).append(StreamAnswer(2)) // terminates
   }
 
@@ -103,7 +103,8 @@ class StreamAnswerTest extends org.scalatest.FunSuite with org.scalatest.matcher
 
     stream.flatMap(i => StreamAnswer.cons(i, StreamAnswer.cons(i, StreamAnswer.empty))).toList shouldBe List(1, 1, 2, 2, 3, 3)
     stream.flatMap(_ => StreamAnswer.empty).toList shouldBe List()
-    StreamAnswer.empty[Int].flatMap(_ => StreamAnswer.cons(1, StreamAnswer.empty)).toList == List()
+    StreamAnswer.empty[Int].flatMap(_ => StreamAnswer.cons(1, StreamAnswer.empty)).toList shouldBe List()
+    StreamAnswer(StreamAnswer(1), StreamAnswer(2), StreamAnswer(3)).flatMap(i => i).toList shouldBe List(1, 2, 3)
   }
 
   test("mapUnfold") {
