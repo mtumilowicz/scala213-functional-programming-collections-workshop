@@ -14,8 +14,50 @@
 * https://github.com/mtumilowicz/java12-fundamentals-tail-recursion-workshop
 
 # introduction to scala
-* AnyVal, AnyRef, Nothing, Nil, null
 ## class
+* class hierarchy
+    * at the top of the hierarchy is class `Any`
+        * every class inherits from `Any`
+        * defines methods
+            ```
+            final def ==(that: Any): Boolean
+            final def !=(that: Any): Boolean
+            def equals(that: Any): Boolean
+            def ##: Int
+            def hashCode: Int
+            def toString: String
+            ```
+        * has two subclasses: `AnyVal` and `AnyRef`
+    * `AnyVal`
+        * parent class of value classes in Scala
+        * for a class to be a value class, it must
+            * have exactly one parameter
+            * have nothing inside it except `defs`
+            * no other class can extend a value class
+            * cannot redefine equals or hashCode
+        * nine value classes built into Scala
+            * `Byte`, `Short`, `Char`, `Int`, `Long`, `Float`, `Double`, `Boolean`, and `Unit`
+                * `Unit` corresponds roughly to Java’s void type
+                * `Unit` has a single instance value, which is written `()`
+        * in Java, a `new Integer(1)` does not equal a `new Long(1)`
+            *  this discrepancy is corrected in Scala
+        * there are implicit conversions between different value class types
+            * for example, `Int` is automatically widened to `scala.Long` when required
+        * implicit conversions are also used to add more functionality to value types
+            * for example, methods `min`, `max`, `until`, and `abs` are in `scala.runtime.RichInt`
+            and there is an implicit conversion from class `Int` to `RichInt`
+    * `AnyRef`
+        * base class of all reference classes
+        * just an alias for `java.lang.Object`
+    * bottom of the hierarchy: `Null` and `Nothing`
+        * handle some "corner cases" of Scala’s object-oriented type system in a uniform way
+    * `Null` is the type of the null reference
+        * subclass of every class that inherits from `AnyRef`
+        * not compatible with value types
+    * `Nothing`
+        * there exist no values of this type
+        * one use is that it signals abnormal termination
+        * another use - parametrization of empty collection subtype
 * public is default access level
 * defined class and gave it a var field
     ```
