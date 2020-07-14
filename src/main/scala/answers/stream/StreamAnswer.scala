@@ -141,7 +141,7 @@ sealed trait StreamAnswer[+A] {
   def tails: StreamAnswer[StreamAnswer[A]] = {
     StreamAnswer.unfold(this) {
       case EmptyStreamAnswer => Option.empty
-      case ConsStreamAnswer(h, t) => Option.apply((ConsStreamAnswer(h, t), t()))
+      case ConsStreamAnswer(h, t) => Some((ConsStreamAnswer(h, t), t()))
     } append StreamAnswer.cons(StreamAnswer.empty, StreamAnswer.empty)
   }
 
