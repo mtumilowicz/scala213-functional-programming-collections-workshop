@@ -95,6 +95,7 @@ class StreamAnswerTest extends org.scalatest.FunSuite with org.scalatest.matcher
     stream2.append(stream).toList == List(4, 5, 1, 2, 3)
     StreamAnswer.empty.append(stream).toList == List(1, 2, 3)
     stream.append(StreamAnswer.empty).toList == List(1, 2, 3)
+    StreamAnswer.constant(1).append(StreamAnswer(2)) // terminates
   }
 
   test("flatMap") {
