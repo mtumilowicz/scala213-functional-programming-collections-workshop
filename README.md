@@ -15,7 +15,12 @@
 # preface
 * goals of this workshop:
     * gentle introduction to Scala syntax and type system
-    * discuss Scala's laziness
+    * discuss some Scala features: 
+        * variance, 
+        * pattern matching, 
+        * sealed classes, 
+        * lazy evaluation and non-strictness
+        * implicit
     * implementation of functional data structures: list, stream and tree
     * practice recursion
         * please refer beforehand https://github.com/mtumilowicz/java12-fundamentals-tail-recursion-workshop
