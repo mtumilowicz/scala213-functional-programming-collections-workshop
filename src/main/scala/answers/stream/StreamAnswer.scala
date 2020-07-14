@@ -110,8 +110,8 @@ sealed trait StreamAnswer[+A] {
       sequence match {
         case EmptyStreamAnswer => true
         case ConsStreamAnswer(headS, tailS) => list match {
-          case EmptyStreamAnswer => false
-          case ConsStreamAnswer(head, tail) => if (head() == headS()) loop(tail(), tailS()) else false
+          case ConsStreamAnswer(head, tail) if head() == headS() => loop(tail(), tailS())
+          case _ => false
         }
       }
     }

@@ -18,6 +18,7 @@ sealed trait StreamWorkshop[+A] {
 
   def take(n: Int): StreamWorkshop[A] = {
     // hint: tailrec with loop(stream: StreamWorkshop[A], list: List[A] = List(), n: Int = n)
+    // hint: reverse
     // hint: StreamWorkshop(loop(this))
     null
   }
@@ -30,6 +31,7 @@ sealed trait StreamWorkshop[+A] {
 
   def takeWhile(p: A => Boolean): StreamWorkshop[A] = {
     // hint: tailrec with loop(stream: StreamWorkshop[A], taken: List[A] = List())
+    // hint: reverse
     null
   }
 
