@@ -67,10 +67,6 @@ object BranchAnswer {
     }
   }
 
-  def maxElemFold(tree: TreeAnswer[Int]): Int = {
-    tree.fold(Int.MinValue)(_ max _)
-  }
-
   def maxElem(tree: TreeAnswer[Int]): Int = {
     @scala.annotation.tailrec
     def loop(tree: List[TreeAnswer[Int]], maxElem: Int = Int.MinValue): Int = {
@@ -82,5 +78,9 @@ object BranchAnswer {
     }
 
     loop(List(tree))
+  }
+
+  def maxElemFold(tree: TreeAnswer[Int]): Int = {
+    tree.fold(Int.MinValue)(_ max _)
   }
 }
