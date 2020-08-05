@@ -457,7 +457,7 @@ object Stream {
     }
     ```
     * tries to find the first matching value and if there is none, it will search forever
-        * s.filter(_ => false) will never terminates on infinite stream
+        * `s.filter(_ => false)` will never terminates on infinite stream
         * Stream from standard library - same problem
         * LazyList - OK
     * we can reuse filter to define find
