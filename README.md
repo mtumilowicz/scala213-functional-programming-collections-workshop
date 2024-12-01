@@ -14,6 +14,7 @@
     * https://docs.scala-lang.org/overviews/scala-book/classes.html
     * https://dzone.com/articles/scala-generics-part-2-covariance-and-contravariance-in-generics
     * https://www.manning.com/books/functional-programming-in-scala
+    * https://chatgpt.com/
 
 # preface
 * goals of this workshop:
@@ -34,6 +35,10 @@
 * class hierarchy
     * at the top of the hierarchy is class `Any`
         * every class inherits from `Any`
+            ```
+            val x: Int = 42
+            val y: Any = x
+            ```
         * defines methods
             ```
             final def ==(that: Any): Boolean
@@ -71,9 +76,15 @@
     * bottom of the hierarchy: `Null` and `Nothing`
         * handle some "corner cases" of Scala’s object-oriented type system in a uniform way
     * `Null` is the type of the null reference
-        * subclass of every class that inherits from `AnyRef`
+        * subtype of every type that inherits from `AnyRef`
         * not compatible with value types
     * `Nothing`
+        * subtype of every type
+            ```
+            def x(): Int = y()
+
+            def y(): Nothing = ???
+            ```
         * there exist no values of this type
         * one use is that it signals abnormal termination
         * another use - parametrization of empty collection subtype
